@@ -45,10 +45,10 @@ resource "oci_core_drg_route_table" "hub_spoke_mesh" {
 # Hub DRG RT uses this to learn 10.1/24, 10.2/24, 10.3/24, 10.4/24
 # automatically. No manual route entries needed for spoke CIDRs.
 
-import {
-  to = oci_core_drg_route_distribution.hub_vcn_import
-  id = "PASTE_DRG_ROUTE_DIST_OCID_HERE"  # Only if 409 error — get from: oci network drg-route-distribution list
-}
+#import {
+#  to = oci_core_drg_route_distribution.hub_vcn_import
+#  id = "PASTE_DRG_ROUTE_DIST_OCID_HERE"  # Only if 409 error — get from: oci network drg-route-distribution list
+#}
 resource "oci_core_drg_route_distribution" "hub_vcn_import" {
   drg_id            = var.hub_drg_id
   display_name      = local.hub_import_dist_name
@@ -144,10 +144,10 @@ resource "oci_core_route_table" "hub_ingress" {
 # via DRG → Hub FW → SGW. Defence architecture: all traffic inspectable.
 # Required for: Vault, Object Storage, OCI Logging, OCI APIs.
 
-import {
-  to = oci_core_service_gateway.hub
-  id = "PASTE_SGW_OCID_HERE"  # Only if limit-exceeded error — get from: oci network service-gateway list
-}
+#import {
+#  to = oci_core_service_gateway.hub
+#  id = "PASTE_SGW_OCID_HERE"  # Only if limit-exceeded error — get from: oci network service-gateway list
+#}
 resource "oci_core_service_gateway" "hub" {
   compartment_id = var.nw_compartment_id
   vcn_id         = var.hub_vcn_id
@@ -232,10 +232,10 @@ resource "oci_core_route_table" "hub_fw" {
 
 # ── Hub VCN attachment ──
 
-import {
-  to = oci_core_drg_attachment.hub_vcn
-  id = "PASTE_HUB_DRG_ATTACHMENT_OCID_HERE"
-}
+#import {
+#  to = oci_core_drg_attachment.hub_vcn
+#  id = "PASTE_HUB_DRG_ATTACHMENT_OCID_HERE"
+#}
 
 resource "oci_core_drg_attachment" "hub_vcn" {
   drg_id             = var.hub_drg_id
@@ -251,10 +251,10 @@ resource "oci_core_drg_attachment" "hub_vcn" {
 
 # ── OS spoke attachment ──
 
-import {
-  to = oci_core_drg_attachment.os
-  id = "PASTE_OS_DRG_ATTACHMENT_OCID_HERE"
-}
+#import {
+#  to = oci_core_drg_attachment.os
+#  id = "PASTE_OS_DRG_ATTACHMENT_OCID_HERE"
+#}
 
 resource "oci_core_drg_attachment" "os" {
   drg_id             = var.hub_drg_id
@@ -269,10 +269,10 @@ resource "oci_core_drg_attachment" "os" {
 
 # ── TS spoke attachment ──
 
-import {
-  to = oci_core_drg_attachment.ts
-  id = "PASTE_TS_DRG_ATTACHMENT_OCID_HERE"
-}
+#import {
+#  to = oci_core_drg_attachment.ts
+#  id = "PASTE_TS_DRG_ATTACHMENT_OCID_HERE"
+#}
 
 resource "oci_core_drg_attachment" "ts" {
   drg_id             = var.hub_drg_id
@@ -287,10 +287,10 @@ resource "oci_core_drg_attachment" "ts" {
 
 # ── SS spoke attachment ──
 
-import {
-  to = oci_core_drg_attachment.ss
-  id = "PASTE_SS_DRG_ATTACHMENT_OCID_HERE"
-}
+#import {
+#  to = oci_core_drg_attachment.ss
+#  id = "PASTE_SS_DRG_ATTACHMENT_OCID_HERE"
+#}
 
 resource "oci_core_drg_attachment" "ss" {
   drg_id             = var.hub_drg_id
@@ -305,10 +305,10 @@ resource "oci_core_drg_attachment" "ss" {
 
 # ── DEVT spoke attachment ──
 
-import {
-  to = oci_core_drg_attachment.devt
-  id = "PASTE_DEVT_DRG_ATTACHMENT_OCID_HERE"
-}
+#import {
+#  to = oci_core_drg_attachment.devt
+#  id = "PASTE_DEVT_DRG_ATTACHMENT_OCID_HERE"
+#}
 
 resource "oci_core_drg_attachment" "devt" {
   drg_id             = var.hub_drg_id
