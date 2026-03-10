@@ -124,4 +124,15 @@ module "lz_groups" {
   providers            = { oci = oci.home }
   tenancy_ocid         = local.tenancy_id
   groups_configuration = local.groups_configuration
+  # Fresh tenancies can fail group creation with "Invalid tags" if IAM tags
+  # are still propagating. Force groups to run after namespace + tag keys exist.
+  depends_on = [
+    oci_identity_tag_namespace.elz_v1,
+    oci_identity_tag.environment,
+    oci_identity_tag.owner,
+    oci_identity_tag.managed_by,
+    oci_identity_tag.cost_center,
+    oci_identity_tag.data_classification,
+    oci_identity_tag.sprint
+  ]
 }
