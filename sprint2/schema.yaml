@@ -1,0 +1,207 @@
+title: "STAR ELZ V1 — Sprint 2 Networking"
+description: "Hub-and-spoke networking: VCNs, subnets, DRG, route tables, security lists, Sim Firewalls, Bastion"
+schemaVersion: 1.1.0
+version: "2.1.0"
+locale: "en"
+
+variableGroups:
+  - title: "1. Tenancy & Region"
+    variables:
+      - tenancy_ocid
+      - region
+
+  - title: "2. Landing Zone Identity"
+    variables:
+      - service_label
+      - cis_level
+      - lz_environment
+      - lz_cost_center
+
+  - title: "3. Sprint 1 Compartment OCIDs"
+    description: "Paste from: terraform output -json > sprint1_outputs.json"
+    variables:
+      - nw_compartment_id
+      - os_compartment_id
+      - ts_compartment_id
+      - ss_compartment_id
+      - devt_compartment_id
+      - sec_compartment_id
+      - soc_compartment_id
+      - ops_compartment_id
+      - csvcs_compartment_id
+      - devt_csvcs_compartment_id
+
+  - title: "4. Phase 2 — Hub DRG OCID"
+    description: "Phase 1: leave empty. Phase 2: paste hub_drg_id from T4 output."
+    variables:
+      - hub_drg_id
+
+  - title: "5. Network CIDRs — Hub"
+    variables:
+      - hub_vcn_cidr
+      - hub_fw_subnet_cidr
+      - hub_mgmt_subnet_cidr
+
+  - title: "6. Network CIDRs — Spokes"
+    variables:
+      - os_vcn_cidr
+      - os_app_subnet_cidr
+      - ts_vcn_cidr
+      - ts_app_subnet_cidr
+      - ss_vcn_cidr
+      - ss_app_subnet_cidr
+      - devt_vcn_cidr
+      - devt_app_subnet_cidr
+
+  - title: "7. Sim Firewall"
+    variables:
+      - sim_fw_shape
+      - sim_fw_ocpus
+      - sim_fw_memory_gb
+
+  - title: "8. Bastion & SSH"
+    variables:
+      - bastion_client_cidr
+      - ssh_public_key
+
+variables:
+  tenancy_ocid:
+    type: string
+    title: "Tenancy OCID"
+    required: true
+  region:
+    type: oci:identity:region:name
+    title: "Region"
+    required: true
+  service_label:
+    type: string
+    title: "Service Label"
+    default: "C1"
+    required: true
+  cis_level:
+    type: enum
+    title: "CIS Level"
+    default: "1"
+    enum: ["1", "2"]
+  lz_environment:
+    type: enum
+    title: "Environment"
+    default: "poc"
+    enum: ["poc", "dev", "uat", "prod"]
+  lz_cost_center:
+    type: string
+    title: "Cost Center"
+    default: "STAR-ELZ-V1"
+  nw_compartment_id:
+    type: string
+    title: "C1_R_ELZ_NW OCID"
+    required: true
+  os_compartment_id:
+    type: string
+    title: "C1_OS_ELZ_NW OCID"
+    required: true
+  ts_compartment_id:
+    type: string
+    title: "C1_TS_ELZ_NW OCID"
+    required: true
+  ss_compartment_id:
+    type: string
+    title: "C1_SS_ELZ_NW OCID"
+    required: true
+  devt_compartment_id:
+    type: string
+    title: "C1_DEVT_ELZ_NW OCID"
+    required: true
+  sec_compartment_id:
+    type: string
+    title: "C1_R_ELZ_SEC OCID"
+    required: true
+  soc_compartment_id:
+    type: string
+    title: "C1_R_ELZ_SOC OCID"
+    required: true
+  ops_compartment_id:
+    type: string
+    title: "C1_R_ELZ_OPS OCID"
+    required: true
+  csvcs_compartment_id:
+    type: string
+    title: "C1_R_ELZ_CSVCS OCID"
+    required: true
+  devt_csvcs_compartment_id:
+    type: string
+    title: "C1_R_ELZ_DEVT_CSVCS OCID"
+    required: true
+  hub_drg_id:
+    type: string
+    title: "Hub DRG OCID (Phase 2)"
+    default: ""
+    required: false
+  hub_vcn_cidr:
+    type: string
+    title: "Hub VCN CIDR"
+    default: "10.0.0.0/16"
+  hub_fw_subnet_cidr:
+    type: string
+    title: "Hub FW Subnet CIDR"
+    default: "10.0.0.0/24"
+  hub_mgmt_subnet_cidr:
+    type: string
+    title: "Hub MGMT Subnet CIDR"
+    default: "10.0.1.0/24"
+  os_vcn_cidr:
+    type: string
+    title: "OS VCN CIDR"
+    default: "10.1.0.0/24"
+  os_app_subnet_cidr:
+    type: string
+    title: "OS App Subnet CIDR"
+    default: "10.1.0.0/24"
+  ts_vcn_cidr:
+    type: string
+    title: "TS VCN CIDR"
+    default: "10.3.0.0/24"
+  ts_app_subnet_cidr:
+    type: string
+    title: "TS App Subnet CIDR"
+    default: "10.3.0.0/24"
+  ss_vcn_cidr:
+    type: string
+    title: "SS VCN CIDR"
+    default: "10.2.0.0/24"
+  ss_app_subnet_cidr:
+    type: string
+    title: "SS App Subnet CIDR"
+    default: "10.2.0.0/24"
+  devt_vcn_cidr:
+    type: string
+    title: "DEVT VCN CIDR"
+    default: "10.4.0.0/24"
+  devt_app_subnet_cidr:
+    type: string
+    title: "DEVT App Subnet CIDR"
+    default: "10.4.0.0/24"
+  sim_fw_shape:
+    type: string
+    title: "Sim FW Shape"
+    default: "VM.Standard.E4.Flex"
+  sim_fw_ocpus:
+    type: number
+    title: "Sim FW OCPUs"
+    default: 1
+    minimum: 1
+    maximum: 4
+  sim_fw_memory_gb:
+    type: number
+    title: "Sim FW Memory (GB)"
+    default: 6
+    minimum: 6
+  bastion_client_cidr:
+    type: string
+    title: "Bastion Client CIDR"
+    default: "10.0.0.0/8"
+  ssh_public_key:
+    type: string
+    title: "SSH Public Key"
+    description: "Paste ~/.ssh/id_rsa.pub contents. Used on instances + Bastion sessions."
+    required: true

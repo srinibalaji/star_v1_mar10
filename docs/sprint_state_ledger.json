@@ -1,0 +1,1911 @@
+{
+  "_meta": {
+    "document": "STAR ELZ V1 \u2014 Sprint State Ledger",
+    "purpose": "Single source of truth spanning Sprint 1 \u2192 Sprint 4. Canonical names are authoritative. TF display names and legacy Excel names are recorded separately for traceability. Do not update Terraform code to match legacy Excel names.",
+    "version": "1.1",
+    "created": "2026-02-27",
+    "region": "ap-singapore-2",
+    "cis_level": "1",
+    "architecture": "Hub-and-Spoke | 5 VCNs | 2 DRGs (primary + E-W placeholder) | Sim FW hairpin | OCI Bastion | OCI Private DNS",
+    "naming_convention": {
+      "note": "Canonical naming sync complete (2026-03-01). tf_display_name now equals canonical_name across all resources. Legacy Excel names retained for traceability only.",
+      "canonical": "C1_<TEAM>_ELZ_<DOMAIN> for compartments, UG_<TEAM>_ELZ_<DOMAIN> for groups, vcn_<team>_elz_nw for VCNs",
+      "tf_display_name": "vcn_<team>_elz_nw, sub_<team>_elz_nw_<func>",
+      "legacy_excel": "star-<team>-elz-<domain>-cmp \u2014 DRIFTED, do not use in new code"
+    }
+  },
+  "project": {
+    "name": "STAR Enterprise Landing Zone V1",
+    "service_label": "star",
+    "tag_namespace": "C0-star-elz-v1",
+    "region": "ap-singapore-2",
+    "tenancy_type": "single",
+    "sprints": 4,
+    "teams": 4,
+    "people": 16,
+    "tf_min_version": "1.3.0",
+    "oci_provider_min_version": "6.0.0"
+  },
+  "teams": [
+    {
+      "id": "T1",
+      "name": "Team 1",
+      "members": "People 1\u20134",
+      "sprint1_owns": [
+        "C1_R_ELZ_NW compartment",
+        "C1_R_ELZ_SEC compartment",
+        "sprint1/iam-compartments-team1"
+      ],
+      "sprint2_owns": [
+        "nw_team1.tf \u2014 C1_OS_ELZ_NW VCN + subnet + DRG attach + Sim FW"
+      ],
+      "tc_coverage": [
+        "TC-01 (partial)",
+        "TC-07",
+        "TC-08",
+        "TC-09",
+        "TC-10",
+        "TC-11",
+        "TC-12"
+      ]
+    },
+    {
+      "id": "T2",
+      "name": "Team 2",
+      "members": "People 5\u20138",
+      "sprint1_owns": [
+        "C1_R_ELZ_SOC compartment",
+        "C1_R_ELZ_OPS compartment",
+        "iam_groups.tf (12 groups)",
+        "iam_policies.tf (38 statements)"
+      ],
+      "sprint2_owns": [
+        "nw_team2.tf \u2014 C1_TS_ELZ_NW VCN + subnet + DRG attach + Sim FW"
+      ],
+      "tc_coverage": [
+        "TC-02",
+        "TC-03",
+        "TC-04",
+        "TC-14",
+        "TC-15",
+        "TC-16",
+        "TC-17",
+        "TC-18",
+        "TC-19"
+      ]
+    },
+    {
+      "id": "T3",
+      "name": "Team 3",
+      "members": "People 9\u201312",
+      "sprint1_owns": [
+        "C1_R_ELZ_CSVCS compartment",
+        "C1_R_ELZ_DEVT_CSVCS compartment",
+        "mon_tags.tf (ELZ namespace, 5 tags)"
+      ],
+      "sprint2_owns": [
+        "nw_team3.tf \u2014 C1_SS_ELZ_NW + C1_DEVT_ELZ_NW VCNs + subnets + DRG attaches + Sim FW (SS only)"
+      ],
+      "tc_coverage": [
+        "TC-05",
+        "TC-25"
+      ]
+    },
+    {
+      "id": "T4",
+      "name": "Team 4",
+      "members": "People 13\u201316",
+      "sprint1_owns": [
+        "C1_OS_ELZ_NW compartment",
+        "C1_SS_ELZ_NW compartment",
+        "C1_TS_ELZ_NW compartment",
+        "C1_DEVT_ELZ_NW compartment",
+        "GitHub + CI/CD",
+        "MANUAL: C1_SIM_EXT + C1_SIM_CHILD (console, Day 1)"
+      ],
+      "sprint2_owns": [
+        "nw_team4.tf \u2014 C1_R_ELZ_NW Hub VCN + DRG (primary) + drg_r_ew_hub (placeholder) + Sim FW + Bastion"
+      ],
+      "tc_coverage": [
+        "TC-01b",
+        "TC-06",
+        "TC-12",
+        "TC-13",
+        "TC-22",
+        "TC-27",
+        "TC-28"
+      ]
+    }
+  ],
+  "iam": {
+    "_sprint": "Sprint 1",
+    "_note": "All canonical names below are authoritative. Legacy Excel names (star-*-cmp) are recorded in tf_display_name for traceability only.",
+    "compartments": [
+      {
+        "canonical_name": "C1_R_ELZ_NW",
+        "tf_display_name": "C1_R_ELZ_NW",
+        "legacy_excel_name": "star-r-elz-nw-cmp",
+        "description": "Hub Network \u2014 DRGs (drg_r_hub + drg_r_ew_hub), Hub VCN, Sim FW, Bastion",
+        "parent": "root",
+        "provisioning": "Terraform",
+        "team": "T1",
+        "sprint": "Sprint 1",
+        "tf_map_key": "r_nw_cmp_key",
+        "sprint2_vcn": "vcn_r_elz_nw",
+        "sprint2_variable": "var.nw_compartment_id",
+        "sprint1_output": "nw_compartment_id"
+      },
+      {
+        "canonical_name": "C1_R_ELZ_SEC",
+        "tf_display_name": "C1_R_ELZ_SEC",
+        "legacy_excel_name": "star-r-elz-sec-cmp",
+        "description": "Security \u2014 Cloud Guard, Vault, Security Zones",
+        "parent": "root",
+        "provisioning": "Terraform",
+        "team": "T1",
+        "sprint": "Sprint 1",
+        "tf_map_key": "r_sec_cmp_key",
+        "sprint2_variable": "var.sec_compartment_id",
+        "sprint1_output": "sec_compartment_id"
+      },
+      {
+        "canonical_name": "C1_R_ELZ_SOC",
+        "tf_display_name": "C1_R_ELZ_SOC",
+        "legacy_excel_name": "star-r-elz-soc-cmp",
+        "description": "SOC \u2014 read-only monitoring, incident response",
+        "parent": "root",
+        "provisioning": "Terraform",
+        "team": "T2",
+        "sprint": "Sprint 1",
+        "tf_map_key": "r_soc_cmp_key",
+        "sprint2_variable": "var.soc_compartment_id",
+        "sprint1_output": "soc_compartment_id"
+      },
+      {
+        "canonical_name": "C1_R_ELZ_OPS",
+        "tf_display_name": "C1_R_ELZ_OPS",
+        "legacy_excel_name": "star-r-elz-ops-cmp",
+        "description": "Operations \u2014 Flow Logs, Service Connector, Deployment Pipeline",
+        "parent": "root",
+        "provisioning": "Terraform",
+        "team": "T2",
+        "sprint": "Sprint 1",
+        "tf_map_key": "r_ops_cmp_key",
+        "sprint2_variable": "var.ops_compartment_id",
+        "sprint1_output": "ops_compartment_id"
+      },
+      {
+        "canonical_name": "C1_R_ELZ_CSVCS",
+        "tf_display_name": "C1_R_ELZ_CSVCS",
+        "legacy_excel_name": "star-r-elz-csvcs-cmp",
+        "description": "Common Services \u2014 APM, File Transfer, ServiceNow, Jira",
+        "parent": "root",
+        "provisioning": "Terraform",
+        "team": "T3",
+        "sprint": "Sprint 1",
+        "tf_map_key": "r_csvcs_cmp_key",
+        "sprint2_variable": "var.csvcs_compartment_id",
+        "sprint1_output": "csvcs_compartment_id"
+      },
+      {
+        "canonical_name": "C1_R_ELZ_DEVT_CSVCS",
+        "tf_display_name": "C1_R_ELZ_DEVT_CSVCS",
+        "legacy_excel_name": "star-r-elz-devt-csvcs-cmp",
+        "description": "Dev Common Services \u2014 dev toolchain shared services",
+        "parent": "root",
+        "provisioning": "Terraform",
+        "team": "T3",
+        "sprint": "Sprint 1",
+        "tf_map_key": "r_devt_csvcs_cmp_key",
+        "sprint2_variable": "var.devt_csvcs_compartment_id",
+        "sprint1_output": "devt_csvcs_compartment_id"
+      },
+      {
+        "canonical_name": "C1_OS_ELZ_NW",
+        "tf_display_name": "C1_OS_ELZ_NW",
+        "legacy_excel_name": "star-os-elz-nw-cmp",
+        "description": "OS Spoke \u2014 VCN 10.1.0.0/24, subnets, NSGs, workload",
+        "parent": "root",
+        "provisioning": "Terraform",
+        "team": "T4",
+        "sprint": "Sprint 1",
+        "tf_map_key": "os_nw_cmp_key",
+        "sprint2_vcn": "vcn_os_elz_nw",
+        "sprint2_variable": "var.os_compartment_id",
+        "sprint1_output": "os_nw_compartment_id"
+      },
+      {
+        "canonical_name": "C1_SS_ELZ_NW",
+        "tf_display_name": "C1_SS_ELZ_NW",
+        "legacy_excel_name": "star-ss-elz-nw-cmp",
+        "description": "SS Spoke \u2014 VCN 10.2.0.0/24, subnets, NSGs, workload",
+        "parent": "root",
+        "provisioning": "Terraform",
+        "team": "T4",
+        "sprint": "Sprint 1",
+        "tf_map_key": "ss_nw_cmp_key",
+        "sprint2_vcn": "vcn_ss_elz_nw",
+        "sprint2_variable": "var.ss_compartment_id",
+        "sprint1_output": "ss_nw_compartment_id"
+      },
+      {
+        "canonical_name": "C1_TS_ELZ_NW",
+        "tf_display_name": "C1_TS_ELZ_NW",
+        "legacy_excel_name": "star-ts-elz-nw-cmp",
+        "description": "TS Spoke \u2014 VCN 10.3.0.0/24, subnets, NSGs, workload",
+        "parent": "root",
+        "provisioning": "Terraform",
+        "team": "T4",
+        "sprint": "Sprint 1",
+        "tf_map_key": "ts_nw_cmp_key",
+        "sprint2_vcn": "vcn_ts_elz_nw",
+        "sprint2_variable": "var.ts_compartment_id",
+        "sprint1_output": "ts_nw_compartment_id"
+      },
+      {
+        "canonical_name": "C1_DEVT_ELZ_NW",
+        "tf_display_name": "C1_DEVT_ELZ_NW",
+        "legacy_excel_name": "star-devt-elz-nw-cmp",
+        "description": "DEVT Spoke \u2014 VCN 10.4.0.0/24, network-only V1",
+        "parent": "root",
+        "provisioning": "Terraform",
+        "team": "T4",
+        "sprint": "Sprint 1",
+        "tf_map_key": "devt_nw_cmp_key",
+        "sprint2_vcn": "vcn_devt_elz_nw",
+        "sprint2_variable": "var.devt_compartment_id",
+        "sprint1_output": "devt_nw_compartment_id"
+      },
+      {
+        "canonical_name": "C1_SIM_EXT",
+        "tf_display_name": "C1_SIM_EXT",
+        "legacy_excel_name": "star-sim-ext-cmp",
+        "description": "TEMP V1 ONLY \u2014 Simulated External: Dummy AD, DNS Bridge, AD Bridge",
+        "parent": "root",
+        "provisioning": "MANUAL Console \u2014 created Day 1 Sprint 1 by T4, destroyed end of V1",
+        "team": "T4",
+        "sprint": "Sprint 1 Day 1 (manual)",
+        "tf_map_key": "var.sim_ext_compartment_id",
+        "note": "NOT in Terraform state. OCID recorded manually in tfvars. Destroy manually in V2 cleanup."
+      },
+      {
+        "canonical_name": "C1_SIM_CHILD",
+        "tf_display_name": "C1_SIM_CHILD",
+        "legacy_excel_name": "star-sim-child-cmp",
+        "description": "TEMP V1 ONLY \u2014 Simulated Child Tenancy: Hello World workload",
+        "parent": "root",
+        "provisioning": "MANUAL Console \u2014 created Day 1 Sprint 1 by T4, destroyed end of V1",
+        "team": "T4",
+        "sprint": "Sprint 1 Day 1 (manual)",
+        "tf_map_key": "var.sim_child_compartment_id",
+        "note": "NOT in Terraform state. OCID recorded manually in tfvars. Destroy manually in V2 cleanup."
+      }
+    ],
+    "groups": [
+      {
+        "canonical_name": "UG_ELZ_NW",
+        "description": "Global Network Admin \u2014 all VCNs, DRGs, gateways, route tables",
+        "ad_mapping": "AD-ELZ-NW-Admins",
+        "tf_map_key": "elz_nw_admin_group_key",
+        "sprint1_team": "T2",
+        "sprint2_context": "Members perform Phase 1 and Phase 2 applies across all team files"
+      },
+      {
+        "canonical_name": "UG_ELZ_SEC",
+        "description": "Security Admin \u2014 Cloud Guard, Vault, Bastion, Security Zones",
+        "ad_mapping": "AD-ELZ-SEC-Admins",
+        "tf_map_key": "elz_sec_admin_group_key",
+        "sprint1_team": "T2",
+        "sprint2_context": "Sprint 3 \u2014 configures Security Zones and Cloud Guard"
+      },
+      {
+        "canonical_name": "UG_ELZ_SOC",
+        "description": "SOC Analyst \u2014 read-only tenancy, log review, audit events",
+        "ad_mapping": "AD-ELZ-SOC-Analysts",
+        "tf_map_key": "elz_soc_group_key",
+        "sprint1_team": "T2"
+      },
+      {
+        "canonical_name": "UG_ELZ_OPS",
+        "description": "Operations Admin \u2014 logging, monitoring, alarms, service connector",
+        "ad_mapping": "AD-ELZ-OPS-Admins",
+        "tf_map_key": "elz_ops_admin_group_key",
+        "sprint1_team": "T2"
+      },
+      {
+        "canonical_name": "UG_ELZ_CSVCS",
+        "description": "Common Services Admin \u2014 APM, File Transfer, Data Exchange",
+        "ad_mapping": "AD-ELZ-CSVCS-Admins",
+        "tf_map_key": "elz_csvcs_admin_group_key",
+        "sprint1_team": "T2"
+      },
+      {
+        "canonical_name": "UG_DEVT_CSVCS",
+        "description": "Dev Common Services Admin \u2014 dev toolchain shared services",
+        "ad_mapping": "AD-ELZ-DEVT-CSVCS",
+        "tf_map_key": "devt_csvcs_admin_group_key",
+        "sprint1_team": "T2"
+      },
+      {
+        "canonical_name": "UG_OS_ELZ_NW",
+        "description": "OS Spoke Network Admin \u2014 manage all C1_OS_ELZ_NW resources",
+        "ad_mapping": "AD-ELZ-OS-NW-Admins",
+        "tf_map_key": "os_nw_admin_group_key",
+        "sprint1_team": "T2",
+        "sprint2_context": "nw_team1.tf owner group \u2014 manages OS VCN, subnet, Sim FW"
+      },
+      {
+        "canonical_name": "UG_SS_ELZ_NW",
+        "description": "SS Spoke Network Admin \u2014 manage all C1_SS_ELZ_NW resources",
+        "ad_mapping": "AD-ELZ-SS-NW-Admins",
+        "tf_map_key": "ss_nw_admin_group_key",
+        "sprint1_team": "T2",
+        "sprint2_context": "nw_team3.tf owner group (SS section)"
+      },
+      {
+        "canonical_name": "UG_TS_ELZ_NW",
+        "description": "TS Spoke Network Admin \u2014 manage all C1_TS_ELZ_NW resources",
+        "ad_mapping": "AD-ELZ-TS-NW-Admins",
+        "tf_map_key": "ts_nw_admin_group_key",
+        "sprint1_team": "T2",
+        "sprint2_context": "nw_team2.tf owner group"
+      },
+      {
+        "canonical_name": "UG_DEVT_ELZ_NW",
+        "description": "DEVT Spoke Network Admin \u2014 manage C1_DEVT_ELZ_NW, read Hub network, no SEC access (SoD)",
+        "ad_mapping": "AD-ELZ-DEVT-NW-Admins",
+        "tf_map_key": "devt_nw_admin_group_key",
+        "sprint1_team": "T2",
+        "sprint2_context": "nw_team3.tf owner group (DEVT section) \u2014 network-only in V1"
+      },
+      {
+        "canonical_name": "UG_SIM_EXT",
+        "description": "TEMP V1 ONLY \u2014 Simulated External users (Dummy AD)",
+        "ad_mapping": "N/A \u2014 V1 temp only",
+        "tf_map_key": "sim_ext_group_key",
+        "sprint1_team": "T4",
+        "note": "Destroy with C1_SIM_EXT at V1 end"
+      },
+      {
+        "canonical_name": "UG_SIM_CHILD",
+        "description": "TEMP V1 ONLY \u2014 Simulated Child Tenancy (Hello World workload)",
+        "ad_mapping": "N/A \u2014 V1 temp only",
+        "tf_map_key": "sim_child_group_key",
+        "sprint1_team": "T4",
+        "note": "Destroy with C1_SIM_CHILD at V1 end"
+      }
+    ],
+    "policies": [
+      {
+        "policy_name": "UG_ELZ_NW-Policy",
+        "statement": "Allow group UG_ELZ_NW to manage virtual-network-family in compartment C1_R_ELZ_NW",
+        "tf_key": "NW-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_NW-Policy",
+        "statement": "Allow group UG_ELZ_NW to manage drgs in compartment C1_R_ELZ_NW",
+        "tf_key": "NW-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_NW-Policy",
+        "statement": "Allow group UG_ELZ_NW to read virtual-network-family in compartment C1_OS_ELZ_NW",
+        "tf_key": "NW-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_NW-Policy",
+        "statement": "Allow group UG_ELZ_NW to read virtual-network-family in compartment C1_SS_ELZ_NW",
+        "tf_key": "NW-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_NW-Policy",
+        "statement": "Allow group UG_ELZ_NW to read virtual-network-family in compartment C1_TS_ELZ_NW",
+        "tf_key": "NW-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_NW-Policy",
+        "statement": "Allow group UG_ELZ_NW to read virtual-network-family in compartment C1_DEVT_ELZ_NW",
+        "tf_key": "NW-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_NW-Policy",
+        "statement": "Allow group UG_ELZ_NW to use cloud-shell in tenancy",
+        "tf_key": "NW-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_SEC-Policy",
+        "statement": "Allow group UG_ELZ_SEC to manage all-resources in compartment C1_R_ELZ_SEC",
+        "tf_key": "SEC-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_SEC-Policy",
+        "statement": "Allow group UG_ELZ_SEC to manage cloud-guard-family in tenancy",
+        "tf_key": "SEC-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_SEC-Policy",
+        "statement": "Allow group UG_ELZ_SEC to manage vaults in compartment C1_R_ELZ_SEC",
+        "tf_key": "SEC-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_SEC-Policy",
+        "statement": "Allow group UG_ELZ_SEC to manage keys in compartment C1_R_ELZ_SEC",
+        "tf_key": "SEC-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_SEC-Policy",
+        "statement": "Allow group UG_ELZ_SEC to read all-resources in tenancy",
+        "tf_key": "SEC-ADMIN-ROOT-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_SOC-Policy",
+        "statement": "Allow group UG_ELZ_SOC to read all-resources in tenancy",
+        "tf_key": "SOC-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_SOC-Policy",
+        "statement": "Allow group UG_ELZ_SOC to read log-groups in compartment C1_R_ELZ_SOC",
+        "tf_key": "SOC-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_SOC-Policy",
+        "statement": "Allow group UG_ELZ_SOC to read log-content in compartment C1_R_ELZ_OPS",
+        "tf_key": "SOC-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_SOC-Policy",
+        "statement": "Allow group UG_ELZ_SOC to read audit-events in tenancy",
+        "tf_key": "SOC-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_OPS-Policy",
+        "statement": "Allow group UG_ELZ_OPS to manage logging-family in compartment C1_R_ELZ_OPS",
+        "tf_key": "OPS-ADMIN-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_OPS-Policy",
+        "statement": "Allow group UG_ELZ_OPS to manage alarms in tenancy",
+        "tf_key": "OPS-ADMIN-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_OPS-Policy",
+        "statement": "Allow group UG_ELZ_OPS to manage metrics in tenancy",
+        "tf_key": "OPS-ADMIN-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_OPS-Policy",
+        "statement": "Allow group UG_ELZ_OPS to manage objects in compartment C1_R_ELZ_OPS",
+        "tf_key": "OPS-ADMIN-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_OPS-Policy",
+        "statement": "Allow group UG_ELZ_OPS to manage serviceconnectors in compartment C1_R_ELZ_OPS",
+        "tf_key": "OPS-ADMIN-POLICY"
+      },
+      {
+        "policy_name": "UG_ELZ_CSVCS-Policy",
+        "statement": "Allow group UG_ELZ_CSVCS to manage all-resources in compartment C1_R_ELZ_CSVCS",
+        "tf_key": "CSVCS-ADMIN-POLICY"
+      },
+      {
+        "policy_name": "UG_DEVT_CSVCS-Policy",
+        "statement": "Allow group UG_DEVT_CSVCS to manage all-resources in compartment C1_R_ELZ_DEVT_CSVCS",
+        "tf_key": "DEVT-CSVCS-POLICY"
+      },
+      {
+        "policy_name": "UG_OS_ELZ_NW-Policy",
+        "statement": "Allow group UG_OS_ELZ_NW to manage all-resources in compartment C1_OS_ELZ_NW",
+        "tf_key": "OS-NW-POLICY"
+      },
+      {
+        "policy_name": "UG_OS_ELZ_NW-Policy",
+        "statement": "Allow group UG_OS_ELZ_NW to use virtual-network-family in compartment C1_R_ELZ_NW",
+        "tf_key": "OS-NW-POLICY",
+        "note": "Required for DRG routing through Hub \u2014 critical"
+      },
+      {
+        "policy_name": "UG_SS_ELZ_NW-Policy",
+        "statement": "Allow group UG_SS_ELZ_NW to manage all-resources in compartment C1_SS_ELZ_NW",
+        "tf_key": "SS-NW-POLICY"
+      },
+      {
+        "policy_name": "UG_SS_ELZ_NW-Policy",
+        "statement": "Allow group UG_SS_ELZ_NW to use virtual-network-family in compartment C1_R_ELZ_NW",
+        "tf_key": "SS-NW-POLICY"
+      },
+      {
+        "policy_name": "UG_TS_ELZ_NW-Policy",
+        "statement": "Allow group UG_TS_ELZ_NW to manage all-resources in compartment C1_TS_ELZ_NW",
+        "tf_key": "TS-NW-POLICY"
+      },
+      {
+        "policy_name": "UG_TS_ELZ_NW-Policy",
+        "statement": "Allow group UG_TS_ELZ_NW to use virtual-network-family in compartment C1_R_ELZ_NW",
+        "tf_key": "TS-NW-POLICY"
+      },
+      {
+        "policy_name": "UG_DEVT_ELZ_NW-Policy",
+        "statement": "Allow group UG_DEVT_ELZ_NW to manage instance-family in compartment C1_DEVT_ELZ_NW",
+        "tf_key": "DEVT-NW-POLICY"
+      },
+      {
+        "policy_name": "UG_DEVT_ELZ_NW-Policy",
+        "statement": "Allow group UG_DEVT_ELZ_NW to use virtual-network-family in compartment C1_DEVT_ELZ_NW",
+        "tf_key": "DEVT-NW-POLICY"
+      },
+      {
+        "policy_name": "UG_DEVT_ELZ_NW-Policy",
+        "statement": "Allow group UG_DEVT_ELZ_NW to read virtual-network-family in compartment C1_R_ELZ_NW",
+        "tf_key": "DEVT-NW-POLICY",
+        "note": "No write access to C1_R_ELZ_SEC \u2014 SoD enforced"
+      },
+      {
+        "policy_name": "UG_DEVT_ELZ_NW-Policy",
+        "statement": "Allow group UG_DEVT_ELZ_NW to use volume-family in compartment C1_DEVT_ELZ_NW",
+        "tf_key": "DEVT-NW-POLICY"
+      },
+      {
+        "policy_name": "OCI-Services-Policy",
+        "statement": "Allow service cloudguard to read all-resources in tenancy",
+        "tf_key": "OCI-SERVICES-POLICY"
+      },
+      {
+        "policy_name": "OCI-Services-Policy",
+        "statement": "Allow service objectstorage-ap-singapore-2 to manage object-family in tenancy",
+        "tf_key": "OCI-SERVICES-POLICY"
+      },
+      {
+        "policy_name": "OCI-Services-Policy",
+        "statement": "Allow service vulnerability-scanning-service to manage instances in tenancy",
+        "tf_key": "OCI-SERVICES-POLICY"
+      },
+      {
+        "policy_name": "UG_SIM_EXT-Policy",
+        "statement": "Allow group UG_SIM_EXT to manage all-resources in compartment C1_SIM_EXT",
+        "tf_key": "SIM-V1-POLICY",
+        "note": "TEMP V1 ONLY"
+      },
+      {
+        "policy_name": "UG_SIM_CHILD-Policy",
+        "statement": "Allow group UG_SIM_CHILD to manage all-resources in compartment C1_SIM_CHILD",
+        "tf_key": "SIM-V1-POLICY",
+        "note": "TEMP V1 ONLY"
+      }
+    ],
+    "tags": {
+      "namespace": "C0-star-elz-v1",
+      "namespace_legacy_excel": "ELZ",
+      "compartment": "root",
+      "keys": [
+        {
+          "key": "Environment",
+          "values": "POC | Development | Production",
+          "cost_tracking": false
+        },
+        {
+          "key": "CostCenter",
+          "values": "Network | Security | Operations | SharedSvc | Dev | Simulation",
+          "cost_tracking": true
+        },
+        {
+          "key": "DataClassification",
+          "values": "Restricted | Confidential | Internal | Public",
+          "cost_tracking": false
+        },
+        {
+          "key": "ManagedBy",
+          "values": "Terraform | Manual | Pipeline",
+          "cost_tracking": false
+        },
+        {
+          "key": "Owner",
+          "values": "Responsible team or individual",
+          "cost_tracking": false
+        }
+      ]
+    }
+  },
+  "network": {
+    "_sprint": "Sprint 2",
+    "_architecture_note": "Hub-and-Spoke via drg_r_hub (primary). drg_r_ew_hub = E-W placeholder, no attachments, V2 scope. E-W traffic flow: Spoke \u2192 DRG \u2192 Hub transit subnet \u2192 vm_dummy_fw (hairpin 10.0.3.10) \u2192 DRG \u2192 Spoke. Sprint 2 V1 uses Sim FW compute; Sprint 3 replaces with OCI NFW.",
+    "_two_drg_note": "Architecture shows 2 DRGs in C1_R_ELZ_NW: (1) DRG icon = drg_r_hub (primary, all VCN attachments) and (2) Inter E-W DRG icon = drg_r_ew_hub (empty placeholder for V2 E-W segmentation). Both are in nw_team4.tf.",
+    "vcns": [
+      {
+        "canonical_name": "vcn_r_elz_nw",
+        "tf_display_name": "vcn_r_elz_nw",
+        "compartment": "C1_R_ELZ_NW",
+        "cidr": "10.0.0.0/16",
+        "role": "hub",
+        "team_file": "nw_team4.tf",
+        "dns_label": "hubelznw",
+        "gateways": [
+          "drg_r_hub (DRG attachment)",
+          "drg_r_ew_hub (empty placeholder)",
+          "igw (Sprint 3+)",
+          "ngw (Sprint 3)",
+          "sgw (Sprint 3)"
+        ],
+        "sprint2_code_status": "provisioned",
+        "gap_vs_architecture": "V1 isolated \u2014 no IGW provisioned in Sprint 2 per HK review. Sprint 3 scope."
+      },
+      {
+        "canonical_name": "vcn_os_elz_nw",
+        "tf_display_name": "vcn_os_elz_nw",
+        "compartment": "C1_OS_ELZ_NW",
+        "cidr": "10.1.0.0/24",
+        "role": "spoke",
+        "team_file": "nw_team1.tf",
+        "dns_label": "oselznw",
+        "gateways": [
+          "drg_r_hub (DRG attachment)",
+          "sgw (Sprint 3)"
+        ],
+        "sprint2_code_status": "provisioned",
+        "gap_vs_architecture": "Sprint2 code defaults spoke VCN to /16 \u2014 architecture specifies /24. Variable var.os_vcn_cidr must be set to 10.1.0.0/24 in tfvars. Default in code is wrong and must be corrected before Sprint 2 apply."
+      },
+      {
+        "canonical_name": "vcn_ss_elz_nw",
+        "tf_display_name": "vcn_ss_elz_nw",
+        "compartment": "C1_SS_ELZ_NW",
+        "cidr": "10.2.0.0/24",
+        "role": "spoke",
+        "team_file": "nw_team3.tf",
+        "dns_label": "sselznw",
+        "gateways": [
+          "drg_r_hub (DRG attachment)",
+          "sgw (Sprint 3)"
+        ],
+        "sprint2_code_status": "provisioned",
+        "gap_vs_architecture": "Same /16 vs /24 issue as OS spoke. Set var.ss_vcn_cidr = 10.2.0.0/24 in tfvars."
+      },
+      {
+        "canonical_name": "vcn_ts_elz_nw",
+        "tf_display_name": "vcn_ts_elz_nw",
+        "compartment": "C1_TS_ELZ_NW",
+        "cidr": "10.3.0.0/24",
+        "role": "spoke",
+        "team_file": "nw_team2.tf",
+        "dns_label": "tselznw",
+        "gateways": [
+          "drg_r_hub (DRG attachment)",
+          "sgw (Sprint 3)"
+        ],
+        "sprint2_code_status": "provisioned",
+        "gap_vs_architecture": "Same /16 vs /24 issue. Set var.ts_vcn_cidr = 10.3.0.0/24 in tfvars."
+      },
+      {
+        "canonical_name": "vcn_devt_elz_nw",
+        "tf_display_name": "vcn_devt_elz_nw",
+        "compartment": "C1_DEVT_ELZ_NW",
+        "cidr": "10.4.0.0/24",
+        "role": "spoke",
+        "team_file": "nw_team3.tf",
+        "dns_label": "devtelznw",
+        "gateways": [
+          "drg_r_hub (DRG attachment)",
+          "sgw (Sprint 3)"
+        ],
+        "sprint2_code_status": "provisioned \u2014 network only, no compute in V1",
+        "gap_vs_architecture": "Same /16 vs /24 issue. Set var.devt_vcn_cidr = 10.4.0.0/24 in tfvars."
+      }
+    ],
+    "drgs": [
+      {
+        "canonical_name": "drg_r_hub",
+        "tf_display_name": "drg_r_hub",
+        "compartment": "C1_R_ELZ_NW",
+        "team_file": "nw_team4.tf",
+        "role": "primary \u2014 all 5 VCN attachments",
+        "sprint2_code_status": "provisioned in Phase 1",
+        "attachments": [
+          {
+            "vcn": "vcn_r_elz_nw",
+            "drg_rt": "rt_drg_hub_to_fw",
+            "import_dist": "import-hub-routes",
+            "sprint2_status": "Phase 2"
+          },
+          {
+            "vcn": "vcn_os_elz_nw",
+            "drg_rt": "rt_drg_spoke_os",
+            "import_dist": "import-spoke-routes",
+            "sprint2_status": "Phase 2"
+          },
+          {
+            "vcn": "vcn_ss_elz_nw",
+            "drg_rt": "rt_drg_spoke_ss",
+            "import_dist": "import-spoke-routes",
+            "sprint2_status": "Phase 2"
+          },
+          {
+            "vcn": "vcn_ts_elz_nw",
+            "drg_rt": "rt_drg_spoke_ts",
+            "import_dist": "import-spoke-routes",
+            "sprint2_status": "Phase 2"
+          },
+          {
+            "vcn": "vcn_devt_elz_nw",
+            "drg_rt": "rt_drg_spoke_devt",
+            "import_dist": "import-spoke-routes",
+            "sprint2_status": "Phase 2"
+          }
+        ],
+        "drg_route_tables": [
+          {
+            "name": "rt_drg_hub_to_fw",
+            "rule": "0.0.0.0/0 \u2192 drg_r_hub_vcn_r_elz_nw_attach",
+            "purpose": "CRITICAL: all DRG ingress \u2192 Hub VCN for FW inspection",
+            "sprint_scope": "Sprint 2 Phase 2 (promoted from S3-BACKLOG-01)"
+          },
+          {
+            "name": "rt_drg_spoke_os",
+            "rule": "10.1.0.0/24 \u2192 drg_r_hub_vcn_os_elz_nw_attach",
+            "purpose": "Return route DRG \u2192 OS Spoke",
+            "sprint_scope": "Sprint 2 Phase 2 (promoted from S3-BACKLOG-01)"
+          },
+          {
+            "name": "rt_drg_spoke_ss",
+            "rule": "10.2.0.0/24 \u2192 drg_r_hub_vcn_ss_elz_nw_attach",
+            "purpose": "Return route DRG \u2192 SS Spoke",
+            "sprint_scope": "Sprint 2 Phase 2 (promoted from S3-BACKLOG-01)"
+          },
+          {
+            "name": "rt_drg_spoke_ts",
+            "rule": "10.3.0.0/24 \u2192 drg_r_hub_vcn_ts_elz_nw_attach",
+            "purpose": "Return route DRG \u2192 TS Spoke",
+            "sprint_scope": "Sprint 2 Phase 2 (promoted from S3-BACKLOG-01)"
+          },
+          {
+            "name": "rt_drg_spoke_devt",
+            "rule": "10.4.0.0/24 \u2192 drg_r_hub_vcn_devt_elz_nw_attach",
+            "purpose": "Return route DRG \u2192 DEVT Spoke",
+            "sprint_scope": "Sprint 2 Phase 2 (promoted from S3-BACKLOG-01)"
+          }
+        ]
+      },
+      {
+        "canonical_name": "drg_r_ew_hub",
+        "tf_display_name": "drg_r_ew_hub",
+        "compartment": "C1_R_ELZ_NW",
+        "team_file": "nw_team4.tf",
+        "role": "E-W placeholder \u2014 zero attachments in V1, dedicated inter-spoke segmentation in V2",
+        "sprint2_code_status": "GAP \u2014 not yet provisioned in current sprint2 code. Must be added to nw_team4.tf.",
+        "sprint2_gap_action": "Add oci_core_drg resource for drg_r_ew_hub (zero attachments). Required by architecture diagram and TC-12.",
+        "sprint_scope": "Sprint 2"
+      }
+    ],
+    "subnets": [
+      {
+        "canonical_name": "sn_hub_public",
+        "tf_display_name": "sn_hub_public",
+        "vcn": "vcn_r_elz_nw",
+        "compartment": "C1_R_ELZ_NW",
+        "cidr": "10.0.1.0/24",
+        "type": "public",
+        "route_table": "rt_hub_public",
+        "security_list": "sl_hub_dmz",
+        "dns_label": "hubpub",
+        "purpose": "Bastion (OCI Bastion Service or vm_bastion)",
+        "sprint2_code_status": "GAP \u2014 Sprint2 code has hub_fw subnet (10.0.0.0/24 private) and hub_mgmt (10.0.1.0/24). Architecture requires 4 hub subnets. Sprint 2 V1 simplified to 2; full 4-subnet hub is Sprint 3."
+      },
+      {
+        "canonical_name": "sn_hub_fw_mgmt",
+        "tf_display_name": "sn_hub_fw_mgmt",
+        "vcn": "vcn_r_elz_nw",
+        "compartment": "C1_R_ELZ_NW",
+        "cidr": "10.0.2.0/24",
+        "type": "private",
+        "route_table": "rt_hub_mgmt",
+        "security_list": "sl_hub_mgmt",
+        "dns_label": "hubmgmt",
+        "purpose": "Bastion SSH access, Dummy AD mgmt",
+        "sprint2_code_status": "Partially mapped \u2014 sprint2 hub_mgmt subnet is 10.0.1.0/24, architecture specifies 10.0.2.0/24. Sprint 2 simplified CIDR plan."
+      },
+      {
+        "canonical_name": "sn_hub_fw_transit",
+        "tf_display_name": "sn_hub_fw_transit",
+        "vcn": "vcn_r_elz_nw",
+        "compartment": "C1_R_ELZ_NW",
+        "cidr": "10.0.3.0/24",
+        "type": "private",
+        "route_table": "rt_hub_transit",
+        "security_list": "sl_hub_transit",
+        "dns_label": "hubfw",
+        "purpose": "vm_dummy_fw hairpin at fixed IP 10.0.3.10, OCI Private DNS listener at 10.0.3.53",
+        "critical": "vm_dummy_fw MUST have private IP 10.0.3.10 \u2014 hairpin route rule hardcodes this",
+        "sprint2_code_status": "Mapped as hub_fw subnet (10.0.0.0/24 in V1). Full CIDR alignment Sprint 3."
+      },
+      {
+        "canonical_name": "sn_hub_lb",
+        "tf_display_name": "sn_hub_lb",
+        "vcn": "vcn_r_elz_nw",
+        "compartment": "C1_R_ELZ_NW",
+        "cidr": "10.0.4.0/24",
+        "type": "private",
+        "route_table": "rt_hub_lb",
+        "security_list": "sl_hub_lb",
+        "dns_label": "hublb",
+        "purpose": "Hub Load Balancer \u2014 Sprint 3+ scope",
+        "sprint2_code_status": "NOT provisioned in Sprint 2. Sprint 3 scope."
+      },
+      {
+        "canonical_name": "sn_os_app",
+        "tf_display_name": "sn_os_app",
+        "vcn": "vcn_os_elz_nw",
+        "compartment": "C1_OS_ELZ_NW",
+        "cidr": "10.1.0.0/25",
+        "type": "private",
+        "route_table": "rt_spoke_os",
+        "security_list": "sl_os_app",
+        "dns_label": "osapp",
+        "sprint2_code_status": "Provisioned as /24 (10.1.0.0/24). Architecture specifies /25 for app + /25 for lb. V1 simplified to single /24. Sprint 3 to correct."
+      },
+      {
+        "canonical_name": "sn_os_lb",
+        "tf_display_name": "sn_os_lb",
+        "vcn": "vcn_os_elz_nw",
+        "compartment": "C1_OS_ELZ_NW",
+        "cidr": "10.1.0.128/25",
+        "type": "private",
+        "route_table": "rt_spoke_os",
+        "security_list": "sl_os_lb",
+        "dns_label": "oslb",
+        "sprint2_code_status": "NOT provisioned in Sprint 2. Sprint 3 scope."
+      },
+      {
+        "canonical_name": "sn_ss_app",
+        "tf_display_name": "sn_ss_app",
+        "vcn": "vcn_ss_elz_nw",
+        "compartment": "C1_SS_ELZ_NW",
+        "cidr": "10.2.0.0/25",
+        "sprint2_code_status": "Provisioned as /24. Sprint 3 to split to /25."
+      },
+      {
+        "canonical_name": "sn_ss_lb",
+        "tf_display_name": "sn_ss_lb",
+        "vcn": "vcn_ss_elz_nw",
+        "compartment": "C1_SS_ELZ_NW",
+        "cidr": "10.2.0.128/25",
+        "sprint2_code_status": "NOT provisioned. Sprint 3 scope."
+      },
+      {
+        "canonical_name": "sn_ts_app",
+        "tf_display_name": "sn_ts_app",
+        "vcn": "vcn_ts_elz_nw",
+        "compartment": "C1_TS_ELZ_NW",
+        "cidr": "10.3.0.0/25",
+        "sprint2_code_status": "Provisioned as /24. Sprint 3 to split to /25."
+      },
+      {
+        "canonical_name": "sn_ts_lb",
+        "tf_display_name": "sn_ts_lb",
+        "vcn": "vcn_ts_elz_nw",
+        "compartment": "C1_TS_ELZ_NW",
+        "cidr": "10.3.0.128/25",
+        "sprint2_code_status": "NOT provisioned. Sprint 3 scope."
+      },
+      {
+        "canonical_name": "sn_devt_app",
+        "tf_display_name": "sn_devt_app",
+        "vcn": "vcn_devt_elz_nw",
+        "compartment": "C1_DEVT_ELZ_NW",
+        "cidr": "10.4.0.0/25",
+        "sprint2_code_status": "Provisioned as /24. Sprint 3 to split to /25."
+      },
+      {
+        "canonical_name": "sn_devt_lb",
+        "tf_display_name": "sn_devt_lb",
+        "vcn": "vcn_devt_elz_nw",
+        "compartment": "C1_DEVT_ELZ_NW",
+        "cidr": "10.4.0.128/25",
+        "sprint2_code_status": "NOT provisioned. Sprint 3 scope."
+      }
+    ],
+    "route_tables": [
+      {
+        "name": "rt_hub_public",
+        "vcn": "vcn_r_elz_nw",
+        "rules": [
+          {
+            "destination": "0.0.0.0/0",
+            "target_type": "Internet Gateway",
+            "target": "igw_vcn_r_elz_nw",
+            "description": "Hub public subnet: Bastion internet access"
+          }
+        ],
+        "sprint2_code_status": "NOT provisioned (no IGW in Sprint 2 V1 isolated design). Sprint 3 scope."
+      },
+      {
+        "name": "rt_hub_transit",
+        "vcn": "vcn_r_elz_nw",
+        "rules": [
+          {
+            "destination": "0.0.0.0/0",
+            "target_type": "Private IP",
+            "target": "10.0.3.10",
+            "description": "HAIRPIN: all outbound \u2192 vm_dummy_fw (iptables fwd + NAT) \u2014 CRITICAL for E-W inspection"
+          },
+          {
+            "destination": "10.0.0.0/16",
+            "target_type": "Local VCN",
+            "target": "local",
+            "description": "Local Hub VCN traffic"
+          },
+          {
+            "destination": "10.1.0.0/24",
+            "target_type": "DRG",
+            "target": "drg_r_hub",
+            "description": "Return route \u2192 OS Spoke"
+          },
+          {
+            "destination": "10.2.0.0/24",
+            "target_type": "DRG",
+            "target": "drg_r_hub",
+            "description": "Return route \u2192 SS Spoke"
+          },
+          {
+            "destination": "10.3.0.0/24",
+            "target_type": "DRG",
+            "target": "drg_r_hub",
+            "description": "Return route \u2192 TS Spoke"
+          },
+          {
+            "destination": "10.4.0.0/24",
+            "target_type": "DRG",
+            "target": "drg_r_hub",
+            "description": "Return route \u2192 DEVT Spoke"
+          }
+        ],
+        "sprint2_code_status": "PARTIAL \u2014 Sprint 2 hub_fw RT is empty (V1 no IGW). Hairpin rule and return routes are Sprint 3 scope (requires vm_dummy_fw with fixed IP 10.0.3.10)."
+      },
+      {
+        "name": "rt_hub_mgmt",
+        "vcn": "vcn_r_elz_nw",
+        "rules": [
+          {
+            "destination": "0.0.0.0/0",
+            "target_type": "NAT Gateway",
+            "target": "ngw_vcn_r_elz_nw",
+            "description": "Mgmt subnet: outbound via NAT"
+          },
+          {
+            "destination": "10.0.0.0/16",
+            "target_type": "Local VCN",
+            "target": "local",
+            "description": "Local Hub VCN"
+          },
+          {
+            "destination": "0.0.0.0/0",
+            "target_type": "DRG",
+            "target": "drg_r_hub",
+            "description": "Phase 2: DRG route (dynamic block)"
+          }
+        ],
+        "sprint2_code_status": "Phase 2 DRG rule provisioned. NGW not provisioned (Sprint 3)."
+      },
+      {
+        "name": "rt_spoke_os",
+        "vcn": "vcn_os_elz_nw",
+        "rules": [
+          {
+            "destination": "0.0.0.0/0",
+            "target_type": "DRG",
+            "target": "drg_r_hub",
+            "description": "All OS outbound \u2192 Hub DRG \u2192 FW inspection"
+          },
+          {
+            "destination": "10.1.0.0/24",
+            "target_type": "Local VCN",
+            "target": "local",
+            "description": "Local OS traffic"
+          }
+        ],
+        "sprint2_code_status": "DRG default route provisioned in Phase 2."
+      },
+      {
+        "name": "rt_spoke_ss",
+        "vcn": "vcn_ss_elz_nw",
+        "sprint2_code_status": "DRG default route provisioned in Phase 2."
+      },
+      {
+        "name": "rt_spoke_ts",
+        "vcn": "vcn_ts_elz_nw",
+        "sprint2_code_status": "DRG default route provisioned in Phase 2."
+      },
+      {
+        "name": "rt_spoke_devt",
+        "vcn": "vcn_devt_elz_nw",
+        "sprint2_code_status": "DRG default route provisioned in Phase 2."
+      }
+    ],
+    "security_lists": {
+      "_sprint_scope": "Sprint 3",
+      "_note": "Not provisioned in Sprint 2. Defined here as target state for Sprint 3.",
+      "lists": [
+        {
+          "name": "sl_hub_dmz",
+          "vcn": "vcn_r_elz_nw",
+          "key_rules": "INGRESS tcp 0.0.0.0/0 :22 (SSH to Bastion), INGRESS icmp 10.0.0.0/8, EGRESS all"
+        },
+        {
+          "name": "sl_hub_mgmt",
+          "vcn": "vcn_r_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.1.0/24 :22 (Bastion only), INGRESS icmp 10.0.0.0/8, EGRESS all"
+        },
+        {
+          "name": "sl_hub_transit",
+          "vcn": "vcn_r_elz_nw",
+          "key_rules": "INGRESS all 10.0.0.0/8 (FW inspects), EGRESS all (FW forwards+NATs)"
+        },
+        {
+          "name": "sl_hub_lb",
+          "vcn": "vcn_r_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.0.0/8 :443/:80, EGRESS all 10.0.0.0/8"
+        },
+        {
+          "name": "sl_os_app",
+          "vcn": "vcn_os_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.0.0/8 :22, INGRESS icmp 10.0.0.0/8, EGRESS all"
+        },
+        {
+          "name": "sl_os_lb",
+          "vcn": "vcn_os_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.0.0/8 :443, EGRESS all 10.1.0.0/25"
+        },
+        {
+          "name": "sl_ss_app",
+          "vcn": "vcn_ss_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.0.0/8 :22/:443, INGRESS icmp 10.0.0.0/8, EGRESS all"
+        },
+        {
+          "name": "sl_ss_lb",
+          "vcn": "vcn_ss_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.0.0/8 :443, EGRESS all 10.2.0.0/25"
+        },
+        {
+          "name": "sl_ts_app",
+          "vcn": "vcn_ts_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.0.0/8 :22, INGRESS icmp 10.0.0.0/8, EGRESS all"
+        },
+        {
+          "name": "sl_ts_lb",
+          "vcn": "vcn_ts_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.0.0/8 :443, EGRESS all 10.3.0.0/25"
+        },
+        {
+          "name": "sl_devt_app",
+          "vcn": "vcn_devt_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.1.0/24 :22 (Bastion only), INGRESS icmp 10.0.0.0/8, EGRESS all"
+        },
+        {
+          "name": "sl_devt_lb",
+          "vcn": "vcn_devt_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.0.0/8 :443, EGRESS all 10.4.0.0/25"
+        }
+      ]
+    },
+    "nsgs": {
+      "_sprint_scope": "Sprint 3",
+      "_note": "Not provisioned in Sprint 2.",
+      "groups": [
+        {
+          "name": "nsg_hub_fw",
+          "vcn": "vcn_r_elz_nw",
+          "key_rules": "INGRESS all 10.0.0.0/8 (all internal \u2192 FW VNIC), EGRESS all 0.0.0.0/0"
+        },
+        {
+          "name": "nsg_hub_bastion",
+          "vcn": "vcn_r_elz_nw",
+          "key_rules": "INGRESS tcp 0.0.0.0/0 :22, EGRESS tcp 10.0.0.0/8 :22"
+        },
+        {
+          "name": "nsg_hub_dns",
+          "vcn": "vcn_r_elz_nw",
+          "key_rules": "INGRESS udp/tcp 10.0.0.0/8 :53, EGRESS udp/tcp 0.0.0.0/0 :53"
+        },
+        {
+          "name": "nsg_os_app",
+          "vcn": "vcn_os_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.1.0/24 :22, EGRESS all"
+        },
+        {
+          "name": "nsg_ss_app",
+          "vcn": "vcn_ss_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.0.0/8 :443/:22, EGRESS all"
+        },
+        {
+          "name": "nsg_ts_app",
+          "vcn": "vcn_ts_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.1.0/24 :22, EGRESS all"
+        },
+        {
+          "name": "nsg_devt_app",
+          "vcn": "vcn_devt_elz_nw",
+          "key_rules": "INGRESS tcp 10.0.1.0/24 :22, INGRESS icmp 10.0.0.0/8, EGRESS all"
+        }
+      ]
+    },
+    "private_dns": {
+      "_sprint_scope": "Sprint 3",
+      "endpoints": [
+        {
+          "vcn": "vcn_r_elz_nw",
+          "type": "LISTENING",
+          "name": "dns_listener_hub",
+          "subnet": "sn_hub_fw_transit",
+          "ip": "10.0.3.53",
+          "forwards_to": null,
+          "purpose": "Hub DNS listener \u2014 receives from all Spoke forwarders"
+        },
+        {
+          "vcn": "vcn_os_elz_nw",
+          "type": "FORWARDING",
+          "name": "dns_forwarder_os",
+          "subnet": "sn_os_app",
+          "ip": "10.1.0.53",
+          "forwards_to": "10.0.3.53",
+          "purpose": "OS Spoke \u2192 Hub listener"
+        },
+        {
+          "vcn": "vcn_ss_elz_nw",
+          "type": "FORWARDING",
+          "name": "dns_forwarder_ss",
+          "subnet": "sn_ss_app",
+          "ip": "10.2.0.53",
+          "forwards_to": "10.0.3.53",
+          "purpose": "SS Spoke \u2192 Hub listener"
+        },
+        {
+          "vcn": "vcn_ts_elz_nw",
+          "type": "FORWARDING",
+          "name": "dns_forwarder_ts",
+          "subnet": "sn_ts_app",
+          "ip": "10.3.0.53",
+          "forwards_to": "10.0.3.53",
+          "purpose": "TS Spoke \u2192 Hub listener"
+        },
+        {
+          "vcn": "vcn_devt_elz_nw",
+          "type": "FORWARDING",
+          "name": "dns_forwarder_devt",
+          "subnet": "sn_devt_app",
+          "ip": "10.4.0.53",
+          "forwards_to": "10.0.3.53",
+          "purpose": "DEVT Spoke \u2192 Hub listener"
+        }
+      ]
+    }
+  },
+  "compute": {
+    "_sprint": "Sprint 4 (except vm_dummy_fw + vm_bastion = Sprint 2/3)",
+    "instances": [
+      {
+        "canonical_name": "vm_dummy_fw",
+        "compartment": "C1_R_ELZ_NW",
+        "subnet": "sn_hub_fw_transit",
+        "private_ip": "10.0.3.10",
+        "shape": "VM.Standard.E4.Flex",
+        "ocpus": 1,
+        "mem_gb": 16,
+        "public_ip": false,
+        "skip_src_dst_check": true,
+        "nsg": "nsg_hub_fw",
+        "cloud_init": "cloud-init-fw.sh \u2014 iptables MASQUERADE + ip_forward=1",
+        "sprint_scope": "Sprint 2 Sim FW (nw_team4.tf) \u2014 V1 simulation of OCI NFW",
+        "critical": "Fixed IP 10.0.3.10 MUST be set \u2014 hairpin route table rule hardcodes this. Change = black-hole.",
+        "sprint2_tf_name": "fw_r_elz_nw_hub_sim",
+        "sprint3_replacement": "OCI Network Firewall (L7)"
+      },
+      {
+        "canonical_name": "vm_bastion",
+        "compartment": "C1_R_ELZ_NW",
+        "subnet": "sn_hub_public",
+        "private_ip": "10.0.1.5",
+        "shape": "VM.Standard.E4.Flex",
+        "ocpus": 1,
+        "mem_gb": 8,
+        "public_ip": true,
+        "skip_src_dst_check": false,
+        "nsg": "nsg_hub_bastion",
+        "sprint_scope": "Sprint 2 \u2014 OCI Bastion Service (bas_r_elz_nw_hub)",
+        "note": "Sprint 2 uses OCI Bastion Service (oci_bastion_bastion), not a compute instance"
+      },
+      {
+        "canonical_name": "vm_dummy_ad",
+        "compartment": "C1_SIM_EXT",
+        "subnet": "sn_hub_fw_mgmt",
+        "private_ip": "10.0.2.10",
+        "shape": "VM.Standard.E4.Flex",
+        "cloud_init": "cloud-init-ad.sh",
+        "sprint_scope": "Sprint 4 \u2014 TEMP V1 only",
+        "note": "In C1_SIM_EXT (manual compartment). Simulates AD Bridge. Destroy in V2 cleanup."
+      },
+      {
+        "canonical_name": "vm_hello_world",
+        "compartment": "C1_SIM_CHILD",
+        "subnet": "sn_devt_app",
+        "private_ip": "10.4.0.10",
+        "shape": "VM.Standard.E4.Flex",
+        "nsg": "nsg_devt_app",
+        "cloud_init": "cloud-init-hw.sh",
+        "sprint_scope": "Sprint 4 \u2014 TEMP V1 only",
+        "note": "In C1_SIM_CHILD (manual compartment). Hello World workload. Destroy in V2 cleanup."
+      }
+    ]
+  },
+  "observability": {
+    "_sprint": "Sprint 3",
+    "log_groups": [
+      {
+        "name": "lg_hub_vcn_flow",
+        "compartment": "C1_R_ELZ_OPS",
+        "type": "VCN_FLOW_LOGS",
+        "source": "vcn_r_elz_nw",
+        "bucket": "bkt_elz_central_logs",
+        "retention_days": 30
+      },
+      {
+        "name": "lg_os_vcn_flow",
+        "compartment": "C1_R_ELZ_OPS",
+        "type": "VCN_FLOW_LOGS",
+        "source": "vcn_os_elz_nw",
+        "bucket": "bkt_elz_central_logs",
+        "retention_days": 30
+      },
+      {
+        "name": "lg_ss_vcn_flow",
+        "compartment": "C1_R_ELZ_OPS",
+        "type": "VCN_FLOW_LOGS",
+        "source": "vcn_ss_elz_nw",
+        "bucket": "bkt_elz_central_logs",
+        "retention_days": 30
+      },
+      {
+        "name": "lg_ts_vcn_flow",
+        "compartment": "C1_R_ELZ_OPS",
+        "type": "VCN_FLOW_LOGS",
+        "source": "vcn_ts_elz_nw",
+        "bucket": "bkt_elz_central_logs",
+        "retention_days": 30
+      },
+      {
+        "name": "lg_devt_vcn_flow",
+        "compartment": "C1_R_ELZ_OPS",
+        "type": "VCN_FLOW_LOGS",
+        "source": "vcn_devt_elz_nw",
+        "bucket": "bkt_elz_central_logs",
+        "retention_days": 30
+      },
+      {
+        "name": "lg_audit_logs",
+        "compartment": "C1_R_ELZ_SEC",
+        "type": "AUDIT_LOGS",
+        "source": "tenancy",
+        "bucket": "bkt_elz_audit_archive",
+        "retention_days": 90
+      },
+      {
+        "name": "sch_vcn_logs",
+        "compartment": "C1_R_ELZ_OPS",
+        "type": "SERVICE_CONNECTOR",
+        "source": "all_vcn_flow_logs",
+        "bucket": "bkt_elz_central_logs",
+        "retention_days": null
+      }
+    ],
+    "buckets": [
+      {
+        "name": "bkt_elz_central_logs",
+        "compartment": "C1_R_ELZ_OPS",
+        "purpose": "VCN flow logs from all 5 VCNs via Service Connector Hub",
+        "versioning": true,
+        "visibility": "Private",
+        "tags": "ELZ.DataClassification=Restricted;ELZ.Owner=OPS"
+      },
+      {
+        "name": "bkt_elz_audit_archive",
+        "compartment": "C1_R_ELZ_SEC",
+        "purpose": "Tenancy audit logs \u2014 90 day compliance archive",
+        "versioning": true,
+        "visibility": "Private",
+        "tags": "ELZ.DataClassification=Restricted;ELZ.Owner=SEC"
+      },
+      {
+        "name": "bkt_elz_tf_state",
+        "compartment": "C1_R_ELZ_OPS",
+        "purpose": "Terraform remote state backend \u2014 lock with OCI Lock",
+        "versioning": true,
+        "visibility": "Private",
+        "note": "Create manually BEFORE first TF apply. TF cannot manage its own backend bucket."
+      }
+    ]
+  },
+  "gaps_and_actions": [
+    {
+      "id": "GAP-01",
+      "severity": "HIGH",
+      "sprint": "Sprint 2",
+      "description": "Spoke VCN CIDRs in sprint2 code default to /16 (e.g. 10.1.0.0/16). Architecture specifies /24.",
+      "impact": "If deployed with /16, spoke VCNs will be over-allocated and subnets will use wrong CIDR space.",
+      "action": "Set correct values in terraform.tfvars before Sprint 2 apply: os_vcn_cidr=10.1.0.0/24, ss_vcn_cidr=10.2.0.0/24, ts_vcn_cidr=10.3.0.0/24, devt_vcn_cidr=10.4.0.0/24",
+      "owner": "T1 (network lead), confirm with all spoke teams",
+      "file": "terraform.tfvars.template"
+    },
+    {
+      "id": "GAP-02",
+      "severity": "HIGH",
+      "sprint": "Sprint 2",
+      "description": "drg_r_ew_hub (Inter E-W DRG) not provisioned in sprint2 code. Only drg_r_hub exists.",
+      "impact": "TC-12 will fail. Architecture diagram shows 2 DRGs in C1_R_ELZ_NW.",
+      "action": "Add oci_core_drg 'ew_hub' resource to nw_team4.tf. Zero attachments \u2014 V1 placeholder only.",
+      "owner": "T4",
+      "file": "nw_team4.tf"
+    },
+    {
+      "id": "GAP-03",
+      "severity": "MEDIUM",
+      "sprint": "Sprint 2 \u2192 Sprint 3",
+      "description": "Sprint2 hub has 2 subnets (fw: 10.0.0.0/24, mgmt: 10.0.1.0/24). Architecture requires 4 hub subnets (public /24, mgmt /24, transit /24, lb /24) starting at 10.0.1.0/24.",
+      "impact": "vm_dummy_fw hairpin IP 10.0.3.10 is in the transit subnet (10.0.3.0/24) which doesn't exist yet. E-W routing simulation requires this subnet.",
+      "action": "Add sn_hub_fw_transit (10.0.3.0/24) and sn_hub_public (10.0.1.0/24) in Sprint 3. Refactor sprint2 hub_fw subnet to align with sn_hub_fw_transit CIDR.",
+      "owner": "T4",
+      "sprint3_backlog_ref": "S3-BACKLOG-01"
+    },
+    {
+      "id": "GAP-04",
+      "severity": "MEDIUM",
+      "sprint": "Sprint 2 (promoted from Sprint 3)",
+      "description": "DRG transit routing (oci_core_drg_route_table + oci_core_drg_route_distribution) not implemented. OCI DRG v2 full-mesh means spoke-to-spoke bypasses Hub FW.",
+      "impact": "E-W traffic not inspected by vm_dummy_fw. TC-09 (hairpin) will fail without this.",
+      "action": "Sprint 2 Phase 2: DRG route tables added to nw_team4.tf. rt_drg_hub_to_fw forces all DRG ingress toward Hub VCN attachment via Sim FW 10.0.3.10.",
+      "owner": "T4",
+      "sprint3_backlog_ref": "S3-BACKLOG-01",
+      "status": "RESOLVED \u2014 S3-BACKLOG-01 promoted to Sprint 2"
+    },
+    {
+      "id": "GAP-05",
+      "severity": "MEDIUM",
+      "sprint": "Sprint 2 (tfvars)",
+      "description": "Sprint1 output names for spoke compartments use suffix _nw (os_nw_compartment_id, ss_nw_compartment_id etc.) but sprint2 variable names drop the _nw (os_compartment_id, ss_compartment_id).",
+      "impact": "Operators must know to map sprint1 output os_nw_compartment_id \u2192 sprint2 variable os_compartment_id. Easy to mismap.",
+      "action": "Already documented in variables_iam.tf descriptions and tfvars template. No code change needed. Ensure operators follow the 'From: terraform output X' comments.",
+      "owner": "All teams during Sprint 2 ORM setup",
+      "status": "Documented \u2014 no code change required"
+    },
+    {
+      "id": "GAP-06",
+      "severity": "LOW",
+      "sprint": "Sprint 3",
+      "description": "Security Lists and NSGs not provisioned in Sprint 2. Sprint 2 subnets have no security controls beyond the VCN default.",
+      "impact": "V1 validation only uses NPA (control plane) and Sim FW for Sprint 2. Acceptable for isolated V1 environment.",
+      "action": "Sprint 3: Add all 12 SLs and 7 NSGs per SecurityLists and NSGs sheets.",
+      "owner": "T1 + T2"
+    }
+  ],
+  "sprint1_to_sprint2_handoff": {
+    "required_outputs_from_sprint1": [
+      {
+        "sprint1_output": "nw_compartment_id",
+        "sprint2_variable": "nw_compartment_id",
+        "canonical_compartment": "C1_R_ELZ_NW"
+      },
+      {
+        "sprint1_output": "sec_compartment_id",
+        "sprint2_variable": "sec_compartment_id",
+        "canonical_compartment": "C1_R_ELZ_SEC"
+      },
+      {
+        "sprint1_output": "soc_compartment_id",
+        "sprint2_variable": "soc_compartment_id",
+        "canonical_compartment": "C1_R_ELZ_SOC"
+      },
+      {
+        "sprint1_output": "ops_compartment_id",
+        "sprint2_variable": "ops_compartment_id",
+        "canonical_compartment": "C1_R_ELZ_OPS"
+      },
+      {
+        "sprint1_output": "csvcs_compartment_id",
+        "sprint2_variable": "csvcs_compartment_id",
+        "canonical_compartment": "C1_R_ELZ_CSVCS"
+      },
+      {
+        "sprint1_output": "devt_csvcs_compartment_id",
+        "sprint2_variable": "devt_csvcs_compartment_id",
+        "canonical_compartment": "C1_R_ELZ_DEVT_CSVCS"
+      },
+      {
+        "sprint1_output": "os_nw_compartment_id",
+        "sprint2_variable": "os_compartment_id",
+        "canonical_compartment": "C1_OS_ELZ_NW",
+        "note": "Output suffix _nw dropped in sprint2 variable name"
+      },
+      {
+        "sprint1_output": "ss_nw_compartment_id",
+        "sprint2_variable": "ss_compartment_id",
+        "canonical_compartment": "C1_SS_ELZ_NW",
+        "note": "Output suffix _nw dropped in sprint2 variable name"
+      },
+      {
+        "sprint1_output": "ts_nw_compartment_id",
+        "sprint2_variable": "ts_compartment_id",
+        "canonical_compartment": "C1_TS_ELZ_NW",
+        "note": "Output suffix _nw dropped in sprint2 variable name"
+      },
+      {
+        "sprint1_output": "devt_nw_compartment_id",
+        "sprint2_variable": "devt_compartment_id",
+        "canonical_compartment": "C1_DEVT_ELZ_NW",
+        "note": "Output suffix _nw dropped in sprint2 variable name"
+      }
+    ],
+    "sprint1_gate": "TC-01 through TC-06 all PASS",
+    "sprint2_phase1_gate": "TC-07 and TC-08 PASS \u2014 5 VCNs + 6 subnets confirmed before sharing hub_drg_id",
+    "sprint2_phase2_gate": "TC-09 through TC-17 all PASS",
+    "export_command": "terraform output -json > sprint1_outputs.json",
+    "git_tag": "sprint1-complete"
+  },
+  "test_cases": [
+    {
+      "id": "TC-01",
+      "sprint": "Sprint 1",
+      "category": "IAM",
+      "priority": "P0",
+      "team": "T1+T2+T3+T4",
+      "test": "10 TF compartments created",
+      "expected": "10 compartments; canonical names match; all parent=root",
+      "command": "oci iam compartment list --compartment-id <tenancy-ocid> --all --query \"data[?contains(name,'star')].name\"",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-01b",
+      "sprint": "Sprint 1",
+      "category": "IAM",
+      "priority": "P0",
+      "team": "T4",
+      "test": "2 manual sim compartments (C1_SIM_EXT + C1_SIM_CHILD) + OCIDs in tfvars",
+      "expected": "Visible in console; tags ManagedBy=Manual; OCIDs in terraform.tfvars",
+      "method": "Manual",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-02",
+      "sprint": "Sprint 1",
+      "category": "IAM",
+      "priority": "P0",
+      "team": "T2",
+      "test": "12 IAM groups created",
+      "expected": "12 UG_ groups visible",
+      "command": "oci iam group list --query \"data[?contains(name,'UG_')].name\"",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-03",
+      "sprint": "Sprint 1",
+      "category": "IAM",
+      "priority": "P0",
+      "team": "T2",
+      "test": "NEGATIVE: UG_DEVT_ELZ_NW cannot write to C1_R_ELZ_SEC",
+      "expected": "403/404 NotAuthorized on vault create in C1_R_ELZ_SEC",
+      "method": "Manual",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-04",
+      "sprint": "Sprint 1",
+      "category": "IAM",
+      "priority": "P0",
+      "team": "T2",
+      "test": "NEGATIVE: UG_ELZ_SOC read-only",
+      "expected": "All DELETE ops return 403",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-05",
+      "sprint": "Sprint 1",
+      "category": "Governance",
+      "priority": "P0",
+      "team": "T3",
+      "test": "ELZ tag namespace: 5 tags, CostCenter cost-tracking=true",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-06",
+      "sprint": "Sprint 1",
+      "category": "Terraform",
+      "priority": "P0",
+      "team": "T4",
+      "test": "terraform plan zero drift after Sprint 1 apply",
+      "command": "terraform plan -detailed-exitcode \u2192 exit 0",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-07",
+      "sprint": "Sprint 2",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "5 VCNs created",
+      "expected": "vcn_r_elz_nw, vcn_os_elz_nw, vcn_ts_elz_nw, vcn_ss_elz_nw, vcn_devt_elz_nw",
+      "run_after": "Phase 1 apply",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-08",
+      "sprint": "Sprint 2",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "6 subnets with correct CIDRs \u2014 all private in V1",
+      "run_after": "Phase 1 apply",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-09",
+      "sprint": "Sprint 2",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "Hub DRG has 5 attachments, all ATTACHED",
+      "run_after": "Phase 2 apply",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-10",
+      "sprint": "Sprint 2",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "4 Sim FW instances RUNNING + skip_source_dest_check=true on all VNICs",
+      "run_after": "Phase 2 apply",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-11",
+      "sprint": "Sprint 2",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "Hub Bastion ACTIVE",
+      "run_after": "Phase 2 apply",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-12",
+      "sprint": "Sprint 2",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "Route tables correct (spokes \u2192 DRG, hub FW empty V1)",
+      "run_after": "Phase 2 apply",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-12b",
+      "sprint": "Sprint 2",
+      "category": "Network",
+      "priority": "P1",
+      "team": "T4",
+      "test": "drg_r_ew_hub created AVAILABLE with zero attachments",
+      "expected": "DRG exists; drg-attachment list = empty",
+      "run_after": "Phase 2 apply",
+      "gap_ref": "GAP-02",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-13",
+      "sprint": "Sprint 2",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "NPA POSITIVE: OS \u2192 Hub path valid via DRG",
+      "method": "OCI Console NPA",
+      "run_after": "Phase 2 apply, after TC-09",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-14",
+      "sprint": "Sprint 2",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "NPA NEGATIVE: Spoke-to-spoke routes via Hub (DRG full-mesh known, logged S3-BACKLOG-01)",
+      "run_after": "Phase 2 apply",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-15",
+      "sprint": "Sprint 2",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "Linux Sim FW: cloud-init done, ip_forward=1, iptables masquerade active, ping hub\u2192spoke",
+      "method": "Bastion SSH",
+      "run_after": "TC-11 Bastion ACTIVE",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-16",
+      "sprint": "Sprint 2",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "NEGATIVE: No compute in C1_DEVT_ELZ_NW (network-only V1)",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-17",
+      "sprint": "Sprint 2",
+      "category": "Terraform",
+      "priority": "P0",
+      "team": "T4",
+      "test": "ORM Plan zero drift after Phase 2",
+      "command": "ORM Plan \u2192 0 to add, 0 to change, 0 to destroy",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-18",
+      "sprint": "Sprint 3",
+      "category": "Security",
+      "priority": "P0",
+      "team": "T1",
+      "test": "Bastion ACTIVE in C1_R_ELZ_NW \u2014 not SEC compartment",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-19",
+      "sprint": "Sprint 3",
+      "category": "Security",
+      "priority": "P0",
+      "team": "T2",
+      "test": "Cloud Guard ACTIVE + \u22651 problem finding on root tenancy",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-20",
+      "sprint": "Sprint 3",
+      "category": "Logging",
+      "priority": "P0",
+      "team": "T2",
+      "test": "Flow Logs ACTIVE on all 5 VCNs \u2192 C1_R_ELZ_OPS",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-21",
+      "sprint": "Sprint 3",
+      "category": "Logging",
+      "priority": "P0",
+      "team": "T2",
+      "test": "Logs flowing to bkt_elz_central_logs within 10 min of traffic",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-22",
+      "sprint": "Sprint 3",
+      "category": "Security",
+      "priority": "P1",
+      "team": "T2",
+      "test": "Vault ACTIVE in C1_R_ELZ_SEC \u2014 accessible to UG_ELZ_SEC only",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-23",
+      "sprint": "Sprint 3",
+      "category": "Security",
+      "priority": "P1",
+      "team": "T2",
+      "test": "Security Zone rejects unencrypted bucket in C1_R_ELZ_SEC",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-24",
+      "sprint": "Sprint 3",
+      "category": "Logging",
+      "priority": "P1",
+      "team": "T2",
+      "test": "Audit event within 5 min of SL change (tamper detection)",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-25",
+      "sprint": "Sprint 4",
+      "category": "Network",
+      "priority": "P0",
+      "team": "All",
+      "test": "E-W: Hello World curl reaches OS/SS/TS workloads (http 200)",
+      "command": "Via Bastion \u2192 Hello World: curl http://10.1.0.x:80 | http://10.2.0.x | http://10.3.0.x",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-26",
+      "sprint": "Sprint 4",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "Sim FW tcpdump shows inter-spoke packets \u2014 iptables FORWARD counter > 0",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-27",
+      "sprint": "Sprint 4",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "One Bastion SSH reaches all 3 spoke instances (10.1.0.x, 10.2.0.x, 10.3.0.x)",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-28",
+      "sprint": "Sprint 4",
+      "category": "Network",
+      "priority": "P1",
+      "team": "T1",
+      "test": "Hello World internet via Sim FW NAT \u2014 curl oracle.com 200, MASQUERADE counter > 0",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-29",
+      "sprint": "Sprint 4",
+      "category": "Network",
+      "priority": "P0",
+      "team": "T1",
+      "test": "NEGATIVE: No internet bypass from spoke \u2014 curl times out when hairpin removed",
+      "note": "Run last, restore route immediately",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-30",
+      "sprint": "Sprint 4",
+      "category": "Network",
+      "priority": "P1",
+      "team": "T3",
+      "test": "DNS: nslookup oracle.com via OCI Private DNS chain (10.1.0.53 \u2192 10.0.3.53)",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-31",
+      "sprint": "Sprint 4",
+      "category": "Logging",
+      "priority": "P0",
+      "team": "T2",
+      "test": "Flow log objects in bkt_elz_central_logs timestamped within 10 min of TC-25 traffic",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-32",
+      "sprint": "Sprint 4",
+      "category": "Terraform",
+      "priority": "P0",
+      "team": "T4",
+      "test": "terraform plan zero drift \u2014 full stack",
+      "status": "PENDING"
+    },
+    {
+      "id": "TC-33",
+      "sprint": "Sprint 4",
+      "category": "Terraform",
+      "priority": "P0",
+      "team": "T4",
+      "test": "Git tag sprint1-complete applied; all TF files committed",
+      "status": "PENDING"
+    }
+  ],
+  "assumptions_and_decisions": [
+    {
+      "id": "A-01",
+      "category": "Architecture",
+      "decision": "Single drg_r_hub attaches all 5 VCNs. drg_r_ew_hub created empty \u2014 V2 dedicated E-W DRG.",
+      "v2_action": "Replace with dedicated drg_r_ew_hub for inter-spoke E-W; retain drg_r_hub for N-S (IPSec)"
+    },
+    {
+      "id": "A-02",
+      "category": "Network",
+      "decision": "Hub VCN CIDR = 10.0.0.0/16. Spokes = /24 each.",
+      "v2_action": "Retain"
+    },
+    {
+      "id": "A-03",
+      "category": "Security",
+      "decision": "Dummy FW = vm_dummy_fw (iptables + IP forwarding). Fixed private IP 10.0.3.10. No OCI NFW in V1.",
+      "v2_action": "Replace vm_dummy_fw with OCI Network Firewall (L7)"
+    },
+    {
+      "id": "A-04",
+      "category": "DNS",
+      "decision": "OCI Private DNS replaces vm_dns_bind compute. Hub listener 10.0.3.53, spoke forwarders at .53 in each spoke.",
+      "v2_action": "Extend DNS rules for AD integration"
+    },
+    {
+      "id": "A-05",
+      "category": "IAM",
+      "decision": "Spoke admins get 'use virtual-network-family in C1_R_ELZ_NW' \u2014 required for DRG routing at runtime",
+      "v2_action": "Retain"
+    },
+    {
+      "id": "A-06",
+      "category": "IAM",
+      "decision": "UG_ELZ_NW gets manage on Hub, read on Spokes (SoD)",
+      "v2_action": "Retain"
+    },
+    {
+      "id": "A-07",
+      "category": "Compute",
+      "decision": "vm_dummy_fw fixed private IP 10.0.3.10. Change = route table black-hole.",
+      "v2_action": "Replace with OCI NFW private IP"
+    },
+    {
+      "id": "A-08",
+      "category": "Network",
+      "decision": "No IGW in Sprint 2 V1 isolated design (Han Kiat review 27 Feb 2026)",
+      "v2_action": "Sprint 3 adds IGW for north-south public subnet"
+    },
+    {
+      "id": "A-09",
+      "category": "Compute",
+      "decision": "vm_hello_world in C1_SIM_CHILD@sn_devt_app \u2014 simulates child tenancy workload",
+      "v2_action": "Replace with real workload"
+    },
+    {
+      "id": "A-10",
+      "category": "Compute",
+      "decision": "vm_dummy_ad in C1_SIM_EXT@sn_hub_fw_mgmt \u2014 simulates AD Bridge. NAT Gateway access for packages.",
+      "v2_action": "Replace with actual AD Connect or ADFS"
+    },
+    {
+      "id": "A-11",
+      "category": "Storage",
+      "decision": "bkt_elz_tf_state created manually before first TF apply \u2014 TF cannot manage its own backend",
+      "v2_action": "Automate via bootstrap script"
+    },
+    {
+      "id": "A-12",
+      "category": "Security",
+      "decision": "CIS Level 1 in V1. Vault auto-enabled if cis_level=2.",
+      "v2_action": "Upgrade to CIS Level 2"
+    },
+    {
+      "id": "A-13",
+      "category": "Network",
+      "decision": "No IPSec/FastConnect in V1. N-S simulation deferred.",
+      "v2_action": "Add IPSec VPN to drg_r_hub in V2"
+    },
+    {
+      "id": "A-14",
+      "category": "Logging",
+      "decision": "Flow log retention 30 days. Service Connector archives to bucket.",
+      "v2_action": "Review retention against compliance"
+    },
+    {
+      "id": "A-15",
+      "category": "DNS",
+      "decision": "Hub DNS listener at 10.0.3.53 (transit subnet). No conflict with vm_dummy_fw at 10.0.3.10.",
+      "v2_action": "Retain unless IPAM requires change"
+    }
+  ],
+  "sprint_gates": {
+    "sprint1_complete": {
+      "criteria": "TC-01 through TC-06 all PASS",
+      "action": "terraform output -json > sprint1_outputs.json; git tag sprint1-complete; share outputs with Sprint 2 lead"
+    },
+    "sprint2_phase1_gate": {
+      "criteria": "TC-07 and TC-08 PASS \u2014 5 VCNs and 6 subnets confirmed",
+      "action": "T4 runs: terraform output hub_drg_id; share DRG OCID with all teams for Phase 2"
+    },
+    "sprint2_complete": {
+      "criteria": "TC-07 through TC-17 all PASS (including TC-12b for drg_r_ew_hub)",
+      "action": "terraform output -json > sprint2_outputs.json; git tag sprint2-complete"
+    },
+    "sprint3_complete": {
+      "criteria": "TC-18 through TC-24 all PASS",
+      "action": "git tag sprint3-complete"
+    },
+    "v1_complete": {
+      "criteria": "ALL P0 \u2605 TCs PASS + git tag v1.0 + State Ledger signed off by Sprint Lead",
+      "criteria_detail": "TC-01, TC-01b, TC-02, TC-03, TC-04, TC-05, TC-06, TC-07 through TC-17, TC-18, TC-19, TC-20, TC-21, TC-25, TC-26, TC-27, TC-29, TC-31, TC-32, TC-33",
+      "action": "git tag v1.0; update sprint_state_ledger.json all statuses to PASS; State Book sign-off"
+    }
+  },
+  "sprint_status": {
+    "sprint1": "complete",
+    "sprint2": "in-progress",
+    "s3_backlog_01_status": "promoted-to-sprint2"
+  }
+}

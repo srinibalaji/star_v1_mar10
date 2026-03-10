@@ -1,0 +1,120 @@
+title: "OCI Terraform Training Lab — Multi-User Edition"
+description: "Hands-on training lab. Each trainee gets isolated compartments, groups, and a VCN based on their unique user identifier and CIDR block."
+schemaVersion: 1.1.0
+version: "20260224"
+locale: "en"
+
+#---------------------------------------------------------------------------
+# Variable Groups — shown as collapsible sections in ORM UI
+#---------------------------------------------------------------------------
+variableGroups:
+  - title: "Trainee Assignment"
+    visible: true
+    variables:
+      - user_identifier
+      - user_cidr_block
+
+  - title: "OCI Configuration"
+    visible: true
+    variables:
+      - tenancy_ocid
+      - region
+      - environment
+
+#---------------------------------------------------------------------------
+# Variable Definitions — drives labels, help text, validation in ORM UI
+#---------------------------------------------------------------------------
+variables:
+
+  # ── Trainee Assignment ───────────────────────────────────────────────────
+
+  user_identifier:
+    type: string
+    title: "Your User Identifier"
+    description: "Assigned by instructor. 2–8 alphanumeric characters, must start with a letter. Example: USER03"
+    required: true
+    pattern: "^[A-Za-z][A-Za-z0-9]{1,7}$"
+
+  user_cidr_block:
+    type: integer
+    title: "Your CIDR Block (2nd Octet)"
+    description: "Assigned by instructor. Sets your VCN CIDR to 10.N.0.0/16. Example: 3 → 10.3.0.0/16"
+    required: true
+    minimum: 1
+    maximum: 254
+
+  # ── OCI Configuration ────────────────────────────────────────────────────
+
+  tenancy_ocid:
+    type: oci:identity:compartment:id
+    title: "Tenancy (Root Compartment)"
+    description: "Your OCI tenancy OCID — select root"
+    required: true
+
+  region:
+    type: oci:identity:region:name
+    title: "Region"
+    description: "OCI region for deployment"
+    required: true
+    default: "ap-singapore-2"
+
+  environment:
+    type: enum
+    title: "Environment"
+    description: "Deployment environment label applied to all resource tags"
+    required: true
+    default: "lab"
+    enum:
+      - lab
+      - dev
+      - test
+      - prod
+
+#---------------------------------------------------------------------------
+# Outputs — shown in ORM Stack detail page after Apply
+#---------------------------------------------------------------------------
+outputs:
+  user_identifier:
+    title: "Your User Identifier"
+    type: string
+    visible: true
+
+  allocated_cidr:
+    title: "Your VCN CIDR Block"
+    type: string
+    visible: true
+
+  landing_zone_compartment_id:
+    title: "Landing Zone Compartment OCID"
+    type: ocid
+    visible: true
+
+  network_compartment_id:
+    title: "Network Compartment OCID"
+    type: ocid
+    visible: true
+
+  vcn_id:
+    title: "VCN OCID"
+    type: ocid
+    visible: true
+
+  public_subnet_id:
+    title: "Public Subnet OCID"
+    type: ocid
+    visible: true
+
+  private_subnet_id:
+    title: "Private Subnet OCID"
+    type: ocid
+    visible: true
+
+  database_subnet_id:
+    title: "Database Subnet OCID"
+    type: ocid
+    visible: true
+
+  resource_summary:
+    title: "Full Resource Summary"
+    type: string
+    visible: true

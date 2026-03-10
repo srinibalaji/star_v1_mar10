@@ -1,0 +1,92 @@
+# =============================================================================
+# STAR ELZ V1 — terraform.tfvars.template
+# sprint2 — Hub and Spoke Networking
+#
+# HOW TO USE:
+#   1. Copy: cp terraform.tfvars.template terraform.tfvars
+#   2. Fill in tenancy_ocid and region (required)
+#   3. Paste all 10 compartment OCIDs from Sprint 1 outputs
+#   4. Phase 1: leave hub_drg_id = "" → apply
+#   5. Phase 2: paste hub_drg_id from T4 output → re-apply
+#   6. Do NOT commit terraform.tfvars to Git — it contains credentials.
+#      .gitignore already excludes *.tfvars
+# =============================================================================
+
+# =============================================================================
+# REQUIRED — Tenancy and Region
+# =============================================================================
+tenancy_ocid = "ocid1.tenancy.oc1..aaa"   # replace with your tenancy OCID
+region       = "ap-singapore-2"
+
+# =============================================================================
+# AUTHENTICATION — CLI / Cloud Shell only
+# Leave blank if deploying via ORM (Resource Manager)
+# =============================================================================
+user_ocid        = ""   # ocid1.user.oc1..aaa
+fingerprint      = ""   # xx:xx:xx:xx:xx:xx:xx:xx
+private_key_path = ""   # /path/to/api_key.pem
+
+# =============================================================================
+# LANDING ZONE IDENTITY
+# =============================================================================
+service_label  = "C1"
+cis_level      = "1"
+lz_environment = "poc"
+lz_cost_center = "STAR-ELZ-V1"
+
+# =============================================================================
+# SPRINT 1 COMPARTMENT OCIDs
+# Run in sprint1 directory: terraform output -json > sprint1_outputs.json
+# Then paste each value below.
+# =============================================================================
+nw_compartment_id          = ""   # C1_R_ELZ_NW    — from: terraform output nw_compartment_id
+os_compartment_id          = ""   # C1_OS_ELZ_NW   — from: terraform output os_nw_compartment_id
+ts_compartment_id          = ""   # C1_TS_ELZ_NW   — from: terraform output ts_nw_compartment_id
+ss_compartment_id          = ""   # C1_SS_ELZ_NW   — from: terraform output ss_nw_compartment_id
+devt_compartment_id        = ""   # C1_DEVT_ELZ_NW — from: terraform output devt_nw_compartment_id
+sec_compartment_id         = ""   # C1_R_ELZ_SEC   — from: terraform output sec_compartment_id
+soc_compartment_id         = ""   # C1_R_ELZ_SOC   — from: terraform output soc_compartment_id
+ops_compartment_id         = ""   # C1_R_ELZ_OPS   — from: terraform output ops_compartment_id
+csvcs_compartment_id       = ""   # C1_R_ELZ_CSVCS — from: terraform output csvcs_compartment_id
+devt_csvcs_compartment_id  = ""   # C1_R_ELZ_DEVT_CSVCS — from: terraform output devt_csvcs_compartment_id
+
+# =============================================================================
+# TWO-PHASE APPLY — HUB DRG
+# Phase 1: leave empty → apply → VCNs + subnets + DRG created
+# Phase 2: paste OCID from T4 output → re-apply → DRG attachments + route
+#          tables + Sim FW + Bastion created
+# =============================================================================
+hub_drg_id = ""   # Phase 1: leave empty. Phase 2: ocid1.drg.oc1..aaa (from T4 output)
+
+# =============================================================================
+# NETWORK CIDRs — defaults follow STAR ELZ IP plan
+# Override only if your tenancy has conflicting address space.
+# =============================================================================
+# hub_vcn_cidr         = "10.0.0.0/16"
+# hub_fw_subnet_cidr   = "10.0.0.0/24"
+# hub_mgmt_subnet_cidr = "10.0.1.0/24"
+# os_vcn_cidr          = "10.1.0.0/24"   # STAR ELZ architecture: spoke VCNs are /24
+# os_app_subnet_cidr   = "10.1.0.0/24"
+# ts_vcn_cidr          = "10.3.0.0/24"
+# ts_app_subnet_cidr   = "10.3.0.0/24"
+# ss_vcn_cidr          = "10.2.0.0/24"
+# ss_app_subnet_cidr   = "10.2.0.0/24"
+# devt_vcn_cidr        = "10.4.0.0/24"
+# devt_app_subnet_cidr = "10.4.0.0/24"
+
+# =============================================================================
+# SIM FIREWALL — keep defaults for workshop
+# =============================================================================
+# sim_fw_shape     = "VM.Standard.E4.Flex"
+# sim_fw_ocpus     = 1
+# sim_fw_memory_gb = 6
+
+# =============================================================================
+# BASTION — restrict for production
+# =============================================================================
+# bastion_client_cidr = "0.0.0.0/0"
+
+# =============================================================================
+# SSH KEY
+# =============================================================================
+ssh_public_key = ""   # Paste contents of ~/.ssh/id_rsa.pub

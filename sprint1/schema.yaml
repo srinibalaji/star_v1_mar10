@@ -1,0 +1,215 @@
+title: "STAR ELZ V1 — Sprint 1 Solutions V2"
+description: "STAR Enterprise Landing Zone V1 — IAM Foundation (Compartments, Groups, Policies, Tags)"
+schemaVersion: 1.1.0
+version: "20250226"
+locale: "en"
+
+variableGroups:
+  - title: "1. Tenancy & Region"
+    variables:
+      - tenancy_ocid
+      - region
+
+  - title: "2. Landing Zone Identity"
+    variables:
+      - service_label
+      - cis_level
+      - lz_environment
+      - lz_cost_center
+
+  - title: "3. Test Isolation & Sub-Compartments"
+    variables:
+      - enable_enclosing_compartment
+      - enclosing_compartment_name
+      - enable_c2_compartments
+      - c2_soc_logs_name
+      - c2_os_app_name
+
+  - title: "4. Compartment Name Overrides (C1 Level)"
+    description: "Leave all blank to use STAR standard names: C1_R_ELZ_NW, C1_R_ELZ_SEC, etc."
+    variables:
+      - custom_nw_compartment_name
+      - custom_sec_compartment_name
+      - custom_soc_compartment_name
+      - custom_ops_compartment_name
+      - custom_csvcs_compartment_name
+      - custom_devt_csvcs_compartment_name
+      - custom_os_nw_compartment_name
+      - custom_ss_nw_compartment_name
+      - custom_ts_nw_compartment_name
+      - custom_devt_nw_compartment_name
+
+  - title: "5. Manual Compartment OCIDs (Sprint 1 Day 1 — Team 4)"
+    description: "OCIDs of compartments created manually in OCI Console. Leave empty for Sprint 1. Required before Sprint 4 apply."
+    variables:
+      - sim_ext_compartment_id
+      - sim_child_compartment_id
+
+variables:
+  # ---------------------------------------------------------------------------
+  # Section 1 — Tenancy & Region
+  # ---------------------------------------------------------------------------
+  tenancy_ocid:
+    type: string
+    title: "Tenancy OCID"
+    description: "Your OCI tenancy OCID. Found at: OCI Console → Profile (top right) → Tenancy."
+    required: true
+
+  region:
+    type: oci:identity:region:name
+    title: "Region"
+    description: "OCI region where workload resources are deployed."
+    required: true
+
+  # ---------------------------------------------------------------------------
+  # Section 2 — Landing Zone Identity
+  # ---------------------------------------------------------------------------
+  service_label:
+    type: string
+    title: "Service Label"
+    description: "Short identifier for this LZ instance. Used in tags and descriptions only — does NOT affect resource names. 1-8 uppercase alphanumeric, starts with a letter. Example: C1"
+    default: "C1"
+    required: true
+
+  cis_level:
+    type: enum
+    title: "CIS Benchmark Level"
+    description: "Level 1 = practical security baseline. Level 2 = security-critical (enables Vault, Security Zones, stricter policies)."
+    default: "1"
+    enum:
+      - "1"
+      - "2"
+    required: true
+
+  lz_environment:
+    type: enum
+    title: "Deployment Environment"
+    description: "Deployment environment — applied to the Environment defined tag (C0-star-elz-v1.Environment)."
+    default: "poc"
+    enum:
+      - "poc"
+      - "dev"
+      - "uat"
+      - "prod"
+    required: true
+
+  lz_cost_center:
+    type: string
+    title: "Cost Center Code"
+    description: "Cost center for the CostCenter cost-tracking tag. Required for TC-05. Example: STAR-ELZ-V1"
+    default: "STAR-ELZ-V1"
+    required: true
+
+  # ---------------------------------------------------------------------------
+  # Section 3 — Test Isolation & Sub-Compartments
+  # ---------------------------------------------------------------------------
+  enable_enclosing_compartment:
+    type: boolean
+    title: "Enable Enclosing Compartment"
+    description: "Nest all 10 C1 compartments under a single parent compartment. Use for workshop isolation when multiple teams share one tenancy. Default: false (all C1 at tenancy root)."
+    default: false
+
+  enclosing_compartment_name:
+    type: string
+    title: "Enclosing Compartment Name"
+    description: "Name of the enclosing parent compartment. Use a unique name per team to prevent collision. Example: T1_AD_LZ_DEV"
+    default: "AD_LZ_DEV"
+    visible: enable_enclosing_compartment
+
+  enable_c2_compartments:
+    type: boolean
+    title: "Enable Level 2 Sub-Compartments (C2)"
+    description: "Unlocks C2 name variables below. After enabling, add children blocks to the relevant iam_cmps_team*.tf file. Default: false."
+    default: false
+
+  c2_soc_logs_name:
+    type: string
+    title: "C2 SOC Logs Compartment Name"
+    description: "Name for a Level 2 log archive sub-compartment under C1_R_ELZ_SOC. Must start with C2_."
+    default: "C2_SOC_LOGS"
+    visible: enable_c2_compartments
+
+  c2_os_app_name:
+    type: string
+    title: "C2 OS App Compartment Name"
+    description: "Name for a Level 2 app sub-compartment under C1_OS_ELZ_NW. Must start with C2_."
+    default: "C2_OS_APP"
+    visible: enable_c2_compartments
+
+  # ---------------------------------------------------------------------------
+  # Section 4 — Compartment Name Overrides
+  # ---------------------------------------------------------------------------
+  custom_nw_compartment_name:
+    type: string
+    title: "NW Compartment Name Override"
+    description: "Override for C1_R_ELZ_NW. Leave blank for STAR standard name."
+    required: false
+
+  custom_sec_compartment_name:
+    type: string
+    title: "SEC Compartment Name Override"
+    description: "Override for C1_R_ELZ_SEC. Leave blank for STAR standard name."
+    required: false
+
+  custom_soc_compartment_name:
+    type: string
+    title: "SOC Compartment Name Override"
+    description: "Override for C1_R_ELZ_SOC. Leave blank for STAR standard name."
+    required: false
+
+  custom_ops_compartment_name:
+    type: string
+    title: "OPS Compartment Name Override"
+    description: "Override for C1_R_ELZ_OPS. Leave blank for STAR standard name."
+    required: false
+
+  custom_csvcs_compartment_name:
+    type: string
+    title: "CSVCS Compartment Name Override"
+    description: "Override for C1_R_ELZ_CSVCS. Leave blank for STAR standard name."
+    required: false
+
+  custom_devt_csvcs_compartment_name:
+    type: string
+    title: "DEVT_CSVCS Compartment Name Override"
+    description: "Override for C1_R_ELZ_DEVT_CSVCS. Leave blank for STAR standard name."
+    required: false
+
+  custom_os_nw_compartment_name:
+    type: string
+    title: "OS NW Compartment Name Override"
+    description: "Override for C1_OS_ELZ_NW. Leave blank for STAR standard name."
+    required: false
+
+  custom_ss_nw_compartment_name:
+    type: string
+    title: "SS NW Compartment Name Override"
+    description: "Override for C1_SS_ELZ_NW. Leave blank for STAR standard name."
+    required: false
+
+  custom_ts_nw_compartment_name:
+    type: string
+    title: "TS NW Compartment Name Override"
+    description: "Override for C1_TS_ELZ_NW. Leave blank for STAR standard name."
+    required: false
+
+  custom_devt_nw_compartment_name:
+    type: string
+    title: "DEVT NW Compartment Name Override"
+    description: "Override for C1_DEVT_ELZ_NW. Leave blank for STAR standard name."
+    required: false
+
+  # ---------------------------------------------------------------------------
+  # Section 5 — Manual Compartment OCIDs
+  # ---------------------------------------------------------------------------
+  sim_ext_compartment_id:
+    type: string
+    title: "Sim External Compartment OCID"
+    description: "OCID of C1_SIM_EXT created manually in OCI Console by Team 4. Leave empty for Sprint 1. Required before Sprint 4 apply."
+    required: false
+
+  sim_child_compartment_id:
+    type: string
+    title: "Sim Child Compartment OCID"
+    description: "OCID of C1_SIM_CHILD created manually in OCI Console by Team 4. Leave empty for Sprint 1. Required before Sprint 4 apply."
+    required: false

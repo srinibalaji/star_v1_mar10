@@ -1,0 +1,79 @@
+# =============================================================================
+# STAR ELZ V1 — terraform.tfvars.template
+# sprint1-solutions-v2
+#
+# HOW TO USE:
+#   1. Copy this file: cp terraform.tfvars.template terraform.tfvars
+#   2. Fill in tenancy_ocid and region — required.
+#   3. user_ocid / fingerprint / private_key_path:
+#      ORM (Resource Manager): leave blank — ORM uses instance principal.
+#      CLI / Cloud Shell:       set these three values.
+#   4. Do NOT commit terraform.tfvars to Git — it contains credentials.
+#      The .gitignore in this repo already excludes *.tfvars.
+# =============================================================================
+
+# =============================================================================
+# REQUIRED — fill these in
+# =============================================================================
+tenancy_ocid = "ocid1.tenancy.oc1..aaa"   # replace with your tenancy OCID
+region       = "ap-singapore-2"            # or your OCI region identifier
+
+# =============================================================================
+# AUTHENTICATION — CLI / Cloud Shell only
+# Leave blank if deploying via ORM (Resource Manager)
+# =============================================================================
+user_ocid            = ""  # ocid1.user.oc1..aaa
+fingerprint          = ""  # xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx
+private_key_path     = ""  # /path/to/api_key.pem
+
+# =============================================================================
+# LANDING ZONE IDENTITY
+# service_label: 1-8 uppercase chars, starts with a letter. Used in tags only.
+# Example: C1 for STAR ELZ instance 1. Does NOT affect resource names.
+# =============================================================================
+service_label = "C1"
+cis_level     = "1"
+
+# =============================================================================
+# TAGGING
+# =============================================================================
+lz_environment = "poc"          # poc | dev | uat | prod
+lz_cost_center = "STAR-ELZ-V1"
+
+# =============================================================================
+# TEST ISOLATION (optional)
+# Set enable_enclosing_compartment = true only for multi-team workshop isolation.
+# Leave false for production or single-team deployments.
+# =============================================================================
+enable_enclosing_compartment = false
+# enclosing_compartment_name  = "T1_AD_LZ_DEV"   # uncomment and set if true
+
+# =============================================================================
+# C2 SUB-COMPARTMENTS (optional — leave false for Sprint 1)
+# =============================================================================
+enable_c2_compartments = false
+
+# =============================================================================
+# MANUAL COMPARTMENT OCIDs — Team 4 creates these in OCI Console Sprint 1 Day 1
+# Paste OCIDs here before Sprint 4 apply. Leave empty for Sprint 1.
+# Record these OCIDs in State Book: V1_Manual_Resources tab.
+# =============================================================================
+sim_ext_compartment_id   = ""   # ocid1.compartment.oc1..aaa (C1_SIM_EXT)
+sim_child_compartment_id = ""   # ocid1.compartment.oc1..aaa (C1_SIM_CHILD)
+
+# =============================================================================
+# COMPARTMENT NAME OVERRIDES (optional)
+# Leave all null to use STAR standard names from locals.tf:
+#   C1_R_ELZ_NW, C1_R_ELZ_SEC, C1_R_ELZ_SOC, etc.
+# Override only if a specific compartment needs a non-standard name.
+# =============================================================================
+# custom_nw_compartment_name         = null
+# custom_sec_compartment_name        = null
+# custom_soc_compartment_name        = null
+# custom_ops_compartment_name        = null
+# custom_csvcs_compartment_name      = null
+# custom_devt_csvcs_compartment_name = null
+# custom_os_nw_compartment_name      = null
+# custom_ss_nw_compartment_name      = null
+# custom_ts_nw_compartment_name      = null
+# custom_devt_nw_compartment_name    = null

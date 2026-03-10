@@ -1,0 +1,69 @@
+title: "STAR ELZ V1 — Sprint 3: Security, Observability, Forced Inspection"
+description: "Forced firewall inspection, Service Gateway, Vault (KMS), Cloud Guard, Security Zones, VCN flow logs, events/alarms, Bastion sessions"
+schemaVersion: 1.1.0
+version: "3.1.0"
+locale: "en"
+
+variableGroups:
+  - title: "General"
+    variables:
+      - tenancy_ocid
+      - region
+      - service_label
+      - ssh_public_key
+      - enable_vss
+
+  - title: "Sprint 1 — IAM Compartment OCIDs"
+    variables:
+      - nw_compartment_id
+      - sec_compartment_id
+      - soc_compartment_id
+      - ops_compartment_id
+      - csvcs_compartment_id
+      - devt_csvcs_compartment_id
+      - os_compartment_id
+      - ss_compartment_id
+      - ts_compartment_id
+      - devt_compartment_id
+
+  - title: "Sprint 2 — DRG and Attachments"
+    variables:
+      - hub_drg_id
+      - hub_drg_attachment_id
+      - os_drg_attachment_id
+      - ts_drg_attachment_id
+      - ss_drg_attachment_id
+      - devt_drg_attachment_id
+
+  - title: "Sprint 2 — VCNs"
+    variables:
+      - hub_vcn_id
+      - os_vcn_id
+      - ts_vcn_id
+      - ss_vcn_id
+      - devt_vcn_id
+
+  - title: "Sprint 2 — Subnets"
+    variables:
+      - hub_fw_subnet_id
+      - hub_mgmt_subnet_id
+      - os_app_subnet_id
+      - ts_app_subnet_id
+      - ss_app_subnet_id
+      - devt_app_subnet_id
+
+  - title: "Sprint 2 — Bastion, Sim FW, and Route Tables"
+    variables:
+      - bastion_id
+      - os_fw_private_ip
+      - ts_fw_private_ip
+      - hub_fw_private_ip_id
+      - hub_fw_rt_id
+
+  - title: "Network CIDRs"
+    variables:
+      - hub_vcn_cidr
+      - os_app_subnet_cidr
+      - ss_app_subnet_cidr
+      - ts_app_subnet_cidr
+      - devt_app_subnet_cidr

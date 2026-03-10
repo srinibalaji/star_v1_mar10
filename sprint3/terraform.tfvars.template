@@ -1,0 +1,63 @@
+# ─────────────────────────────────────────────────────────────
+# STAR ELZ V1 — Sprint 3 — terraform.tfvars.template
+# Copy to terraform.tfvars and fill in values.
+# NEVER commit terraform.tfvars to git.
+# ─────────────────────────────────────────────────────────────
+
+# General
+tenancy_ocid   = "ocid1.tenancy.oc1..aaaa..."
+region         = "ap-singapore-2"
+service_label  = "C1"
+lz_environment = "poc"
+lz_cost_center = "STAR-ELZ-V1"
+ssh_public_key = "ssh-rsa AAAA..."
+enable_vss     = false  # Set true if VSS available in region
+
+# Sprint 1 — IAM Compartment OCIDs (from Sprint 1 ORM outputs)
+nw_compartment_id         = "ocid1.compartment.oc1..aaaa..."
+sec_compartment_id        = "ocid1.compartment.oc1..aaaa..."
+soc_compartment_id        = "ocid1.compartment.oc1..aaaa..."
+ops_compartment_id        = "ocid1.compartment.oc1..aaaa..."
+csvcs_compartment_id      = "ocid1.compartment.oc1..aaaa..."
+devt_csvcs_compartment_id = "ocid1.compartment.oc1..aaaa..."
+os_compartment_id         = "ocid1.compartment.oc1..aaaa..."
+ss_compartment_id         = "ocid1.compartment.oc1..aaaa..."
+ts_compartment_id         = "ocid1.compartment.oc1..aaaa..."
+devt_compartment_id       = "ocid1.compartment.oc1..aaaa..."
+
+# Sprint 2 — DRG (from Sprint 2 ORM outputs)
+hub_drg_id             = "ocid1.drg.oc1.ap-singapore-2.aaaa..."
+hub_drg_attachment_id  = "ocid1.drgattachment.oc1.ap-singapore-2.aaaa..."
+os_drg_attachment_id   = "ocid1.drgattachment.oc1.ap-singapore-2.aaaa..."
+ts_drg_attachment_id   = "ocid1.drgattachment.oc1.ap-singapore-2.aaaa..."
+ss_drg_attachment_id   = "ocid1.drgattachment.oc1.ap-singapore-2.aaaa..."
+devt_drg_attachment_id = "ocid1.drgattachment.oc1.ap-singapore-2.aaaa..."
+
+# Sprint 2 — VCNs
+hub_vcn_id  = "ocid1.vcn.oc1.ap-singapore-2.aaaa..."
+os_vcn_id   = "ocid1.vcn.oc1.ap-singapore-2.aaaa..."
+ts_vcn_id   = "ocid1.vcn.oc1.ap-singapore-2.aaaa..."
+ss_vcn_id   = "ocid1.vcn.oc1.ap-singapore-2.aaaa..."
+devt_vcn_id = "ocid1.vcn.oc1.ap-singapore-2.aaaa..."
+
+# Sprint 2 — Subnets
+hub_fw_subnet_id   = "ocid1.subnet.oc1.ap-singapore-2.aaaa..."
+hub_mgmt_subnet_id = "ocid1.subnet.oc1.ap-singapore-2.aaaa..."
+os_app_subnet_id   = "ocid1.subnet.oc1.ap-singapore-2.aaaa..."
+ts_app_subnet_id   = "ocid1.subnet.oc1.ap-singapore-2.aaaa..."
+ss_app_subnet_id   = "ocid1.subnet.oc1.ap-singapore-2.aaaa..."
+devt_app_subnet_id = "ocid1.subnet.oc1.ap-singapore-2.aaaa..."
+
+# Sprint 2 — Bastion and Sim FW
+bastion_id           = "ocid1.bastion.oc1.ap-singapore-2.aaaa..."
+os_fw_instance_id    = "ocid1.instance.oc1.ap-singapore-2.aaaa..."
+ts_fw_instance_id    = "ocid1.instance.oc1.ap-singapore-2.aaaa..."
+hub_fw_private_ip_id = "ocid1.privateip.oc1.ap-singapore-2.aaaa..."  # NOT the IP address — get OCID from: oci network private-ip list --subnet-id $HUB_FW_SUBNET_ID --ip-address <address> --query 'data[0].id' --raw-output
+hub_fw_rt_id         = "ocid1.routetable.oc1.ap-singapore-2.aaaa..."
+
+# CIDRs (defaults are correct — only override if CIDR plan changed)
+# hub_vcn_cidr         = "10.0.0.0/16"
+# os_app_subnet_cidr   = "10.1.0.0/24"
+# ss_app_subnet_cidr   = "10.2.0.0/24"
+# ts_app_subnet_cidr   = "10.3.0.0/24"
+# devt_app_subnet_cidr = "10.4.0.0/24"
